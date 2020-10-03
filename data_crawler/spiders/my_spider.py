@@ -36,16 +36,20 @@ class IEEESpider(scrapy.Spider):
             link_num = str(link_num)
             url = self.base_url + link_num
             yield scrapy.Request(url=url, callback=self.parse_paper, meta={'link_num': link_num})
+    
+    # 通过文件保存一些内容，仅用于测试 TODO: 之后需要改成正式的方式保存
+    def save_file(self, content, name):
+        filename = name + '.html'
+        with open(filename, 'wb') as f:
+            f.write(content)
+        self.log('Saved file %s' % filename)
 
 
     def parse_paper(self, response):
-        filename = 'test.html'
-        with open(filename, 'wb') as f:
-            f.write(response.text)
-        self.log('Saved file %s' % filename)
+        self.save_file(response.body, 'test_body')
 
-        # pattern = re.compile('metadata={.*};')
-        # search_res = pattern.search(response.text)
+        pattern = re.compile('metadata={.*};')
+        search_res = pattern.search(response.body)
         # if search_res:
         #     content = json.loads(search_res.group()[9:-1])
 
