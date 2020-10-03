@@ -22,14 +22,12 @@ def get_keywords(paper):
     return kwd
 
 # 通过文件保存一些内容，仅用于测试 TODO: 之后需要改成正式的方式保存
-def save_byte_file(self, content, name):
+def save_byte_file(content, name):
     filename = 'test_files/' + name + '.html'
     with open(filename, 'wb') as f:
         f.write(content)
-    self.log('Saved file %s' % filename)
 
-def save_str_file(self, content, name):
+def save_str_file(content, name):
     filename = 'test_files/' + name + '.html'
     with open(filename, 'w') as f:
         f.write(content)
-    self.log('Saved file %s' % filename)
