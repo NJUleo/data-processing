@@ -2,13 +2,14 @@ import json
 import re
 import logging
 import random
-import re
 
 import scrapy
 # from pymongo import MongoClient
 # # from crawlab import save_item
 # from ieee.spiders.utils import get_keywords
 from data_crawler.spiders.utils import get_keywords # 获取关键词
+from data_crawler.spiders.utils import save_byte_file
+from data_crawler.spiders.utils import save_str_file
 
 # client = MongoClient("mongodb://se3-shard-mongos-0.se3-shard-svc.mongodb.svc.cluster.local,se3-shard-mongos-1.se3-shard-svc.mongodb.svc.cluster.local")
 # db = client['oasis']
@@ -36,20 +37,16 @@ class IEEESpider(scrapy.Spider):
             link_num = str(link_num)
             url = self.base_url + link_num
             yield scrapy.Request(url=url, callback=self.parse_paper, meta={'link_num': link_num})
-    
-    # 通过文件保存一些内容，仅用于测试 TODO: 之后需要改成正式的方式保存
-    def save_file(self, content, name):
-        filename = name + '.html'
-        with open(filename, 'wb') as f:
-            f.write(content)
-        self.log('Saved file %s' % filename)
 
 
     def parse_paper(self, response):
-        self.save_file(response.body, 'test_body')
+        # self.save_byte_file(response.body, 'test_body')
+        # self.save_str_file(response.text, 'test_text') # body是byte类型，text是string类型，内容上是一致的。
 
         pattern = re.compile('metadata={.*};')
-        search_res = pattern.search(response.body)
+        search_res = pattern.search(response.text)
+        
+        save_str_file(search_res, 'search_res')
         # if search_res:
         #     content = json.loads(search_res.group()[9:-1])
 
