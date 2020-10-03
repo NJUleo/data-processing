@@ -24,6 +24,7 @@ class IEEESpider(scrapy.Spider):
 
         start = 1000000
         end = 9080201
+        # 某个文章的范围 TODO:需要确定这个范围的具体值如何。
 
         # 无限循环持续进行？
         for num in range(1):
@@ -31,7 +32,7 @@ class IEEESpider(scrapy.Spider):
             link_num = random.randrange(start, end)
             # if collection.find_one({'ieeeId': link_num}):
             #     continue
-            link_num = 1000000 #TODO:
+            link_num = 1000000 #TODO:仅用于测试，爬取单独一篇文章
             link_num = str(link_num)
             url = self.base_url + link_num
             yield scrapy.Request(url=url, callback=self.parse_paper, meta={'link_num': link_num})
@@ -40,7 +41,7 @@ class IEEESpider(scrapy.Spider):
     def parse_paper(self, response):
         filename = 'test.html'
         with open(filename, 'wb') as f:
-            f.write(response.body)
+            f.write(response.text)
         self.log('Saved file %s' % filename)
 
         # pattern = re.compile('metadata={.*};')
