@@ -45,46 +45,45 @@ class IEEESpider(scrapy.Spider):
 
         pattern = re.compile('metadata={.*};')
         search_res = pattern.search(response.text)
-        
-        save_str_file(search_res, 'search_res')
-        # if search_res:
-        #     content = json.loads(search_res.group()[9:-1])
+    
+        if search_res:
+            content = json.loads(search_res.group()[9:-1])
 
-        #     required = ['title', 'authors', 'abstract',
-        #                 'publicationTitle', 'doi', 'publicationYear', 'metrics',
-        #                 'contentType']
-        #     # contentType: conference, journal, book
-        #     paper = {k: content.get(k, None) for k in required}
+            required = ['title', 'authors', 'abstract',
+                        'publicationTitle', 'doi', 'publicationYear', 'metrics',
+                        'contentType']
+            # contentType: conference, journal, book
+            paper = {k: content.get(k, None) for k in required}
 
-        #     paper['keywords'] = get_keywords(content)
+            paper['keywords'] = get_keywords(content)
 
-        #     if paper['publicationYear']:
-        #         paper['publicationYear'] = int(paper['publicationYear'])
+            if paper['publicationYear']:
+                paper['publicationYear'] = int(paper['publicationYear'])
 
-        #     paper['link'] = self.base_url + response.meta['link_num']
-        #     paper['ieeeId'] = int(response.meta['link_num'])
+            paper['link'] = self.base_url + response.meta['link_num']
+            paper['ieeeId'] = int(response.meta['link_num'])
 
-        #     # 如果没有doi号或者文档类型
-        #     if paper['authors'] and paper['doi'] and paper['contentType'] and paper['contentType'] != 'standards':
+    #         # 如果没有doi号或者文档类型
+    #         if paper['authors'] and paper['doi'] and paper['contentType'] and paper['contentType'] != 'standards':
 
-        #         for author in paper['authors']:
-        #             if 'firstName' in author:
-        #                 author.pop('firstName')
-        #             if 'lastName' in author:
-        #                 author.pop('lastName')
-        #             if author['affiliation'] in {"", "missing"}:
-        #                 author['affiliation'] = None
+    #             for author in paper['authors']:
+    #                 if 'firstName' in author:
+    #                     author.pop('firstName')
+    #                 if 'lastName' in author:
+    #                     author.pop('lastName')
+    #                 if author['affiliation'] in {"", "missing"}:
+    #                     author['affiliation'] = None
 
-        #         doi = paper['doi']
-        #         right_doi = doi.split('/')[1]
-        #         publication_name = right_doi.split('.')[0]
+    #             doi = paper['doi']
+    #             right_doi = doi.split('/')[1]
+    #             publication_name = right_doi.split('.')[0]
 
-        #         # 如果会议名不全是大写字母的话
-        #         if not re.search(self.pattern, publication_name):
-        #             paper['publicationName'] = publication_name
+    #             # 如果会议名不全是大写字母的话
+    #             if not re.search(self.pattern, publication_name):
+    #                 paper['publicationName'] = publication_name
 
-        #             ref_url = "https://ieeexplore.ieee.org/rest/document/" + response.meta['link_num'] + "/references"
-        #             yield scrapy.Request(url=ref_url, callback=self.parse_reference, meta={'item': paper})
+    #                 ref_url = "https://ieeexplore.ieee.org/rest/document/" + response.meta['link_num'] + "/references"
+    #                 yield scrapy.Request(url=ref_url, callback=self.parse_reference, meta={'item': paper})
         
 
 
@@ -94,20 +93,21 @@ class IEEESpider(scrapy.Spider):
     # def parse_reference(self, response):
     #     content = json.loads(response.text)
     #     paper = response.meta['item']
+    #     save_str_file(response.text, "conf_text")
 
-    #     if 'references' in content:
-    #         refs = []
-    #         for r in content['references']:
-    #             if 'title' in r and 'googleScholarLink' in r and r['title'] and r['title'] != '':
-    #                 refs.append({
-    #                     'title': r['title'],
-    #                     'googleScholarLink': r['googleScholarLink']
-    #                 })
+    #     # if 'references' in content:
+    #     #     refs = []
+    #     #     for r in content['references']:
+    #     #         if 'title' in r and 'googleScholarLink' in r and r['title'] and r['title'] != '':
+    #     #             refs.append({
+    #     #                 'title': r['title'],
+    #     #                 'googleScholarLink': r['googleScholarLink']
+    #     #             })
 
-    #         logging.log(logging.INFO, 'insert to DB, ieeeId: {}'.format(paper['ieeeId']))
-    #         paper['references'] = refs
-    #         # save_item({'ieeeId': paper['ieeeId']})
-    #         collection.insert_one(paper)
+    #     #     logging.log(logging.INFO, 'insert to DB, ieeeId: {}'.format(paper['ieeeId']))
+    #     #     paper['references'] = refs
+    #     #     # save_item({'ieeeId': paper['ieeeId']})
+    #     #     collection.insert_one(paper)
 
 
 
