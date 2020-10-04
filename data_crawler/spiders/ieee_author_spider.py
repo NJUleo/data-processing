@@ -29,6 +29,21 @@ class IEEEAuthorSpider(scrapy.Spider):
             link_num = str(link_num)
             url = self.base_url + link_num
             yield scrapy.Request(url=url, callback=self.parse_author, meta={'link_num': link_num})
+            # yield scrapy.Request(url='https://ieeexplore.ieee.org/author/' + link_num, callback=self.parse_author, meta={'link_num': link_num})
     
     def parse_author(self, response):
-        save_str_file(response.text, 'test_author')
+        save_byte_file(response.body, 'author')
+        yield scrapy.Request(url="https://ieeexplore.ieee.org/rest/author/37077817100", callback=self.parse_author_rest)
+        # yield scrapy.Request(url = "https://ieeexplore.ieee.org/rest/user/info", callback=self.parse_info, meta={'link_num': response.meta['link_num']})
+
+    def parse_author_rest(self, response):
+        save_byte_file(response.body, 'author_rest')
+    
+    def parse_info(self, response):
+        save_byte_file(response.body, 'info')
+        search_payload = [{"searchWithin":["\"Author Ids\":37077817100"],"history":"no","sortType":"newest","highlight":True,"returnFacets":["ALL"],"returnType":"SEARCH","matchPubs":True}]
+        yield scrapy.Request(url='https://ieeexplore.ieee.org/rest/search', body=json.dumps(search_payload), method="POST", callback=self.parse_search)
+
+    def parse_search(self, response):
+        save_byte_file(response.body, 'search')
+    
