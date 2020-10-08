@@ -75,9 +75,9 @@ DOWNLOADER_MIDDLEWARES = {
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
 }
 
-# ITEM_PIPELINES = {
-#     'crawlab.pipelines.CrawlabMongoPipeline': 888,
-# }
+ITEM_PIPELINES = {
+    'data_crawler.pipelines.JsonWriterPipeline': 888,
+}
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
