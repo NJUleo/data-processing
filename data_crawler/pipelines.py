@@ -5,12 +5,26 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+from itemadapter import ItemAdapter, is_item
 import json
+
+from data_crawler.items import IEEEPaperItem
+from scrapy.exceptions import DropItem
 
 class DataCrawlerPipeline:
     def process_item(self, item, spider):
         return item
+
+# 空的item去除
+class RemoveEmptyItemPipeline:
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        if isinstance(item, IEEEPaperItem):
+            # TODO: 暂时对于空的paper的判断是通过是否有title来进行，可能要进行修改
+            if item.get('title') == None:
+                raise DropItem("ieee paper item found: %r" % item)
+        else:
+            return item
 
 
 # 将所有的item保存为json。TODO: 其他正式的保存方式

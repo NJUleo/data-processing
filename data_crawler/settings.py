@@ -76,6 +76,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 
 ITEM_PIPELINES = {
+    'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
     'data_crawler.pipelines.JsonWriterPipeline': 888,
 }
 # Enable or disable extensions
