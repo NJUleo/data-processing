@@ -9,12 +9,24 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import datetime
+
 BOT_NAME = 'data_crawler'
 
 SPIDER_MODULES = ['data_crawler.spiders']
 NEWSPIDER_MODULE = 'data_crawler.spiders'
 
+# URL for Spider
+# TODO: 切换到需要爬取的url（某个search result）
+IEEE_URL = ['https://ieeexplore.ieee.org/document/']
+
+# Time
+START_TIME = datetime.datetime.now()
+
+# LOG
 LOG_LEVEL = 'INFO'
+LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
+
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -63,9 +75,10 @@ DOWNLOADER_MIDDLEWARES = {
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
 }
 
-# ITEM_PIPELINES = {
-#     'crawlab.pipelines.CrawlabMongoPipeline': 888,
-# }
+ITEM_PIPELINES = {
+    'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
+    'data_crawler.pipelines.JsonWriterPipeline': 888,
+}
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
