@@ -9,6 +9,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import datetime
+
 BOT_NAME = 'data_crawler'
 
 SPIDER_MODULES = ['data_crawler.spiders']
@@ -18,7 +20,13 @@ NEWSPIDER_MODULE = 'data_crawler.spiders'
 # TODO: 切换到需要爬取的url（某个search result）
 IEEE_URL = ['https://ieeexplore.ieee.org/document/']
 
+# Time
+START_TIME = datetime.datetime.now()
+
+# LOG
 LOG_LEVEL = 'INFO'
+LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour)
+
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
