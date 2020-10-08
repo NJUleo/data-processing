@@ -14,6 +14,10 @@ BOT_NAME = 'data_crawler'
 SPIDER_MODULES = ['data_crawler.spiders']
 NEWSPIDER_MODULE = 'data_crawler.spiders'
 
+# URL for Spider
+# TODO: 切换到需要爬取的url（某个search result）
+IEEE_URL = ['https://ieeexplore.ieee.org/document/']
+
 LOG_LEVEL = 'INFO'
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
