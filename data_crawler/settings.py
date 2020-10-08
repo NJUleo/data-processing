@@ -25,7 +25,7 @@ START_TIME = datetime.datetime.now()
 
 # LOG
 LOG_LEVEL = 'INFO'
-LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour)
+LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
