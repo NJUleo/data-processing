@@ -2,6 +2,7 @@
 # temporary crawl result, to be replaced by database.
 test.html
 test_files/
+crawled_items.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
