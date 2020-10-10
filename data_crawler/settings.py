@@ -10,6 +10,7 @@
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 import datetime
+import rotating_proxies
 
 BOT_NAME = 'data_crawler'
 
@@ -65,14 +66,18 @@ COOKIES_ENABLED = False
 #    'ieee.middlewares.IeeeSpiderMiddleware': 543,
 #}
 
+# rataing_proxy
+ROTATING_PROXY_LIST_PATH = 'proxies.txt'
+
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'ieee.middlewares.IeeeDownloaderMiddleware': 543,
-# }
+
+
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
+    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
 }
 
 ITEM_PIPELINES = {

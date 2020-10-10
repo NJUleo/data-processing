@@ -22,6 +22,7 @@
 ├── requirements.txt # 配置要求
 ├── scrapy.cfg
 ├── scrapy_logs
+├── proxies.txt # http代理地址
 └── test_files # 暂时存储爬取结果
 ```
 
@@ -40,3 +41,11 @@ scrapy crawl ieee
 ### Log
 
 log保存在 /scrapy_logs中
+
+### Proxy
+
+在proxies.txt中列出http代理的ip和端口号，自动随机切换代理。
+
+格式为一行一个，ip:端口号
+
+如果不需要代理则在settings中将rotating_proxies.middlewares.RotatingProxyMiddleware、rotating_proxies.middlewares.BanDetectionMiddleware两个中间件禁用
