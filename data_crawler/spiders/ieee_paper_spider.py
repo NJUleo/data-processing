@@ -25,9 +25,10 @@ class IEEESpider(scrapy.Spider):
         # 某个文章的范围 TODO: 需要将这种方式改成爬取某个search result
 
         # TODO: 需要改成一个合适的循环（爬取文章）的数量，暂时由于未配置代理，仅爬取五次避免ip封锁
-        for num in range(5):
+        for _ in range(5):
             # 随机选择一篇IEEE文章
             link_num = random.randrange(start, end)
+            
             link_num = str(link_num)
             url = self.base_url + link_num
             yield scrapy.Request(url= url, callback=self.parse_paper, meta={'link_num': link_num})
@@ -49,7 +50,4 @@ class IEEESpider(scrapy.Spider):
             # contentType: conference, journal, book
             for i in required:
                 item[i] = content.get(i, None)
-
-            test = dict(item)
-            #self.logger.debug(test)
             yield item

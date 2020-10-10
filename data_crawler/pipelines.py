@@ -18,13 +18,11 @@ class DataCrawlerPipeline:
 # 空的item去除
 class RemoveEmptyItemPipeline:
     def process_item(self, item, spider):
-        adapter = ItemAdapter(item)
         if item == None:
             raise DropItem("found none item")
-        if isinstance(item, IEEEPaperItem):
+        if isinstance(item, IEEEPaperItem) and item.get('title') == None:
             # TODO: 暂时对于空的paper的判断是通过是否有title来进行，可能要进行修改
-            if item.get('title') == None:
-                raise DropItem("ieee paper item found: %r" % item)
+            raise DropItem("ieee paper item found: %r" % item)
 
         return item
 
