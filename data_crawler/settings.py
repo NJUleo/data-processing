@@ -20,6 +20,7 @@ NEWSPIDER_MODULE = 'data_crawler.spiders'
 # URL for Spider
 # TODO: 切换到需要爬取的url（某个search result）
 IEEE_URL = ['https://ieeexplore.ieee.org/document/']
+ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] # 填入ACM的地址
 
 # Time
 START_TIME = datetime.datetime.now()
@@ -28,6 +29,9 @@ START_TIME = datetime.datetime.now()
 LOG_LEVEL = 'INFO'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
+# Retry Setting
+
+# Retry on most error codes since proxies fail for different reasons
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -49,7 +53,7 @@ AUTOTHROTTLE_ENABLED = True
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+#COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
