@@ -10,6 +10,7 @@
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 import datetime
+import rotating_proxies
 
 BOT_NAME = 'data_crawler'
 
@@ -19,6 +20,7 @@ NEWSPIDER_MODULE = 'data_crawler.spiders'
 # URL for Spider
 # TODO: 切换到需要爬取的url（某个search result）
 IEEE_URL = ['https://ieeexplore.ieee.org/document/']
+ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] # 填入ACM的地址
 
 # Time
 START_TIME = datetime.datetime.now()
@@ -27,6 +29,9 @@ START_TIME = datetime.datetime.now()
 LOG_LEVEL = 'INFO'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
+# Retry Setting
+
+# Retry on most error codes since proxies fail for different reasons
 RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -48,7 +53,7 @@ AUTOTHROTTLE_ENABLED = True
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+#COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -65,14 +70,18 @@ COOKIES_ENABLED = False
 #    'ieee.middlewares.IeeeSpiderMiddleware': 543,
 #}
 
+# rataing_proxy
+ROTATING_PROXY_LIST_PATH = 'proxies.txt'
+
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'ieee.middlewares.IeeeDownloaderMiddleware': 543,
-# }
+
+
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
+    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
 }
 
 ITEM_PIPELINES = {
