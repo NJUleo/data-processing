@@ -18,3 +18,12 @@ def save_str_file(content, name = 'test_str'):
     filename = 'test_files/' + name
     with open(filename, 'w') as f:
         f.write(content)
+
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    else:
+        raise NoPrefixException(text, prefix)
+
+class NoPrefixException(Exception):
+    pass
