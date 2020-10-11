@@ -1,7 +1,6 @@
 .vscode/
 # temporary crawl result, to be replaced by database.
 test.html
-test_files/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
