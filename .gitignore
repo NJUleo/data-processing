@@ -1,6 +1,4 @@
 .vscode/
-test_files/*
-!.gitkeep
 # temporary crawl result, to be replaced by database.
 test.html
 

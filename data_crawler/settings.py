@@ -11,6 +11,12 @@
 
 import datetime
 import rotating_proxies
+import os
+
+tem_dir=['scrapy_logs', 'test_files']
+for dir in tem_dir:
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
 BOT_NAME = 'data_crawler'
 
