@@ -55,6 +55,7 @@ class ACMSpider(scrapy.Spider):
                 next_url,
                 callback=self.parse,
             )
+            
     def parse_paper(self, response):
         # 结果的对象
         result = ACMPaperItem()
