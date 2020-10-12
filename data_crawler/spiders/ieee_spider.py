@@ -42,12 +42,14 @@ class IEEESpider(scrapy.Spider):
     def parse_conference_list(self, response):
         conference_list = json.loads(response.text)
 
+        # TODO: 用于debug，只爬一个issue
         haha = True
         
         for record in conference_list['records']:
             for issue in record['issues']:
                 if int(issue['year']) >= self.ieee_year['from'] and int(issue['year']) <= self.ieee_year['to']:
 
+                    # TODO: 用于debug，只爬一个issue
                     if haha:
                         haha = False
                     else:
