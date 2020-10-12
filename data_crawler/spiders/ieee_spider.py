@@ -41,14 +41,24 @@ class IEEESpider(scrapy.Spider):
     # 获得此会议历年的列表，遍历判断每个issue是否符合年份要求，符合的继续请求
     def parse_conference_list(self, response):
         conference_list = json.loads(response.text)
+
+        haha = True
+        
         for record in conference_list['records']:
             for issue in record['issues']:
                 if int(issue['year']) >= self.ieee_year['from'] and int(issue['year']) <= self.ieee_year['to']:
+
+                    if haha:
+                        haha = False
+                    else:
+                        continue
+
                     payload = {
                         'punumber': record['publicationNumber'],
                         'isnumber': issue['issueNumber']
                     }
                     payload = json.dumps(payload)
+                    # 从此issue的第一页开始
                     yield scrapy.Request(
                         url='https://ieeexplore.ieee.org/rest/search/pub/{}/issue/{}/toc'.format(record['publicationNumber'], issue['issueNumber']),
                         callback=self.parse_issue,
@@ -60,11 +70,28 @@ class IEEESpider(scrapy.Spider):
                             'Content-Type': "application/json"
                         },
                         body=json.dumps({
-                            "punumber":record['publicationNumber'],"isnumber":issue['issueNumber']
+                            "punumber":record['publicationNumber'],"isnumber":issue['issueNumber'],"pageNumber": 1
                         })
                     )
     
+    # 某issue的某页
     def parse_issue(self, response):
+
+        # 处理此页的所有文章
+        TODO:
+
+        # 如果不是最后一页，继续爬取
+        content = json.loads(response.text)
+        request_body = json.loads(response.request.body)
+        if request_body['pageNumber'] < content['totalPages']:
+            request_body['pageNumber'] += 1
+            yield scrapy.Request(
+                        url=response.request.url,
+                        callback=self.parse_issue,
+                        method='POST',
+                        headers=response.request.headers,
+                        body=json.dumps(request_body)
+                    )
         yield None
         
     
