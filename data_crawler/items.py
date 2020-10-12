@@ -31,3 +31,4 @@ class ACMPaperItem(scrapy.Item):
     abstract = scrapy.Field()
     citations = scrapy.Field() # 引用该文章的文章
     references = scrapy.Field() # 该文章引用的文章
+    index_term_tree = scrapy.Field() # ACM index term tree

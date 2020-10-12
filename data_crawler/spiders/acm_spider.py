@@ -120,8 +120,26 @@ class ACMSpider(scrapy.Spider):
         ]
 
         # index term
+        root_selector = response.xpath('.//ol[@class="rlist organizational-chart"]/li')
+        result['index_term_tree'] = {
+            'title': root_selector.xpath('./h6/text()').get(),
+            'url': None,
+            'child': [self.parse_index_tree(scrapy.Selector(text=tree_html).xpath('./body/li')) for tree_html in root_selector.xpath('./ol/li').getall()]
+        }
         
         yield result
+    
+    def parse_index_tree(self, selector):
+        # 前置条件：根节点存在（selector.get() != None）。对根结点没关系
+        result = {}
+        result['title'] = selector.xpath('./div/p/a/text()').get() or selector.xpath('./h6/text()').get()
+        result['url'] = 'https://dl.acm.org/' + selector.xpath('./div/p/a/@href').get()
+        child = []
+        for child_html in selector.xpath('./ol[contains(@class, hasNodes)]/li').getall():
+            child.append(self.parse_index_tree(scrapy.Selector(text=child_html).xpath('./body/li')))
+        result['child'] = child
+        return result
+
     
     def remove_html(self, string):
         pattern = re.compile(r'<[^>]+>')
