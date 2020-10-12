@@ -99,7 +99,7 @@ DOWNLOADER_MIDDLEWARES = {
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
     'rotating_proxies.middlewares.RotatingProxyMiddleware': 610 if not DEBUG else None,
     'rotating_proxies.middlewares.BanDetectionMiddleware': 620 if not DEBUG else None,
-    'data_crawler.middlewares.RquestLogMiddleware': None,
+    'data_crawler.middlewares.RequestLogMiddleware': None,
     'data_crawler.middlewares.ResponseLogMiddleware': None
 }
 

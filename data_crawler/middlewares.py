@@ -118,7 +118,7 @@ class RandomUserAgentMiddleware(object):
         request.headers.setdefault("User-Agent", self.ua.random)
 
 # 用于log request相关信息
-class RquestLogMiddleware(object):
+class RequestLogMiddleware(object):
     def process_request(self, request, spider):
         spider.logger.debug("start request:")
         spider.logger.debug(request.headers)
