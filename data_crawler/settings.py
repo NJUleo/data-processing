@@ -13,6 +13,9 @@ import datetime
 import rotating_proxies
 import os
 
+# 是否为debug模式，如果是, 不使用proxy
+DEBUG = True
+
 tem_dir=['scrapy_logs', 'test_files']
 for dir in tem_dir:
     if not os.path.exists(dir):
@@ -86,8 +89,8 @@ ROTATING_PROXY_LIST_PATH = 'proxies.txt'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
-    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610 if not DEBUG else None,
+    'rotating_proxies.middlewares.BanDetectionMiddleware': 620 if not DEBUG else None
 }
 
 ITEM_PIPELINES = {
