@@ -79,8 +79,7 @@ class IEEESpider(scrapy.Spider):
     # 某issue的某页
     def parse_issue(self, response):
 
-        # 处理此页的所有文章
-        TODO:
+        #TODO: 处理此页的所有文章
 
         # 如果不是最后一页，继续爬取
         content = json.loads(response.text)
