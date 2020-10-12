@@ -1,8 +1,8 @@
 .vscode/
-test_files/*
-!.gitkeep
 # temporary crawl result, to be replaced by database.
 test.html
+test_files/
+scrapy_logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
