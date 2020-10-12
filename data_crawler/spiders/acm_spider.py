@@ -23,7 +23,6 @@ class ACMSpider(scrapy.Spider):
         super(ACMSpider, self).__init__()
         self.startPage = 0
         self.pageSize = 20 # ACM advanced search默认每页显示20篇文章。也许以后会变动
-        self.startTime = get_project_settings().get('START_TIME')
 
     def parse(self, response):
         print('爬取第', self.startPage, '页')
@@ -56,6 +55,7 @@ class ACMSpider(scrapy.Spider):
                 next_url,
                 callback=self.parse,
             )
+            
     def parse_paper(self, response):
         # 结果的对象
         result = ACMPaperItem()

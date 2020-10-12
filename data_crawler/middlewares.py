@@ -116,3 +116,18 @@ class RandomUserAgentMiddleware(object):
 
     def process_request(self, request, spider):
         request.headers.setdefault("User-Agent", self.ua.random)
+
+# 用于log request相关信息
+class RequestLogMiddleware(object):
+    def process_request(self, request, spider):
+        spider.logger.debug("start request:")
+        spider.logger.debug(request.headers)
+        spider.logger.debug(request.body)
+        return None
+
+# 用于log response相关信息
+class ResponseLogMiddleware(object):
+    def process_response(self, request, response, spider):
+        spider.logger.debug('get respone:')
+        spider.logger.debug(response.body)
+        return response
