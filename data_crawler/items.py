@@ -21,6 +21,7 @@ class IEEEPaperItem(scrapy.Item):
     metrics = scrapy.Field()
     contentType = scrapy.Field()
     references = scrapy.Field()
+    keywords = scrapy.Field()
 
 # ACM的paper.TODO:将ACM和IEEE paper的item统一.暂时保存各自的尽可能多的信息.
 class ACMPaperItem(scrapy.Item):

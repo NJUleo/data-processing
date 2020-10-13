@@ -115,7 +115,7 @@ class IEEESpider(scrapy.Spider):
             content = json.loads(search_res.group()[9:-1])
             required = ['title', 'authors', 'abstract',
                         'publicationTitle', 'doi', 'publicationYear', 'metrics',
-                        'contentType']
+                        'contentType', 'keywords']
             # contentType: conference, journal, book
             for i in required:
                 paper_item[i] = content.get(i, None)
