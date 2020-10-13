@@ -12,10 +12,12 @@
 │   ├── pipelines.py # pipelines，用于数据的清理、保存
 │   ├── settings.py # scrapy项目配置文件
 │   └── spiders # 各爬虫
-│       ├── acm_spider.py
-│       ├── ieee_spider.py
+│       ├── acm_spider.py # ACM paper in search result crawler
+│       ├── acm_paper_parser.py # 用于处理ACM paper页面的静态方法
+│       ├── acm_proceeding_spider.py # ACM proceeding crawler
+│       ├── ieee_spider.py # IEEE conferences crawler
 │       ├── ieee_author_spider.py
-│       ├── ieee_paper_spider.py
+│       ├── ieee_paper_spider.py # IEEE random paper crawler
 │       ├── __init__.py
 │       └── utils.py # 爬虫所使用的工具
 ├── fake_agents.json
@@ -74,6 +76,28 @@ IEEE_YEAR = {
 ##### result
 
 IEEE_CONF_URLS中所有会议在IEEE_YEAR范围内的所有文章
+
+#### ACM proceeding crawler
+
+##### command
+
+```shell
+scrapy crawl ACM_Proceedings
+```
+
+##### settings
+
+/data_crawler/settings.py
+
+```python
+ACM_PROCEEDING_URL = ['https://dl.acm.org/doi/proceedings/10.1145/3238147']
+```
+
+可以是多个proceeding
+
+##### result
+
+爬取settings中所有proceeding的所有文章
 
 ### 结果查看
 

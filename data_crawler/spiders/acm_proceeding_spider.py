@@ -21,7 +21,7 @@ from urllib.parse import urlencode
 class ACMProceedingSpider(scrapy.Spider):
     name = "ACM_Proceedings"
     allowed_domains = ["dl.acm.org"]
-    start_urls = get_project_settings().get('ACM_PROCEEDING_URL')
+    start_urls = get_project_settings().get('ACM_PROCEEDING_URLS')
 
     def __init__(self):
         super(ACMProceedingSpider, self).__init__()
