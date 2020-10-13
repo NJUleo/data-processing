@@ -13,6 +13,7 @@
 │   ├── settings.py # scrapy项目配置文件
 │   └── spiders # 各爬虫
 │       ├── acm_spider.py
+│       ├── ieee_spider.py
 │       ├── ieee_author_spider.py
 │       ├── ieee_paper_spider.py
 │       ├── __init__.py
@@ -28,7 +29,7 @@
 
 ### 运行爬虫
 
-#### IEEE
+#### IEEE random paper crawler
 
 ```shell
 scrapy crawl ieee
@@ -36,9 +37,9 @@ scrapy crawl ieee
 
 随机爬取5篇ieee论文（由于暂时未设置代理，为避免ip封锁，暂时只爬取五篇，如果需要修改，在ieee_paper_spider.py中修改）
 
-由于暂时使用随机爬取，和proxy判断有冲突，如果进行，建议不使用proxy（将proxies.txt设置为空文件）
+由于暂时使用随机爬取，和proxy判断有冲突，如果进行，建议不使用存活率低proxy，可以1. 确保proxies的存活率比较高 2. 将proxies.txt置为空，即不使用proxy
 
-#### ACM
+#### ACM paper in search result crawler
 
 ```shell
 scrapy crawl ACM_Paper
@@ -47,6 +48,32 @@ scrapy crawl ACM_Paper
 爬取data_crawler/settings.py中ACM_URL中的所有页面。这里要求这些页面是ACM的搜索结果页面。爬虫会爬取搜索出的所有文章的相关信息保存于文件。
 
 暂时未实现关键词爬取。
+
+#### IEEE conferences crawler
+
+##### command
+
+```shell
+scrapy crawl IEEE_Paper
+```
+
+##### settings
+
+/data_crawler/settings.py
+
+```python
+# conference urls
+IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
+# 需要的年份(including 'from' and 'to')
+IEEE_YEAR = {
+    'from': 2019,
+    'to': 2019
+}
+```
+
+##### result
+
+IEEE_CONF_URLS中所有会议在IEEE_YEAR范围内的所有文章
 
 ### 结果查看
 

@@ -14,7 +14,7 @@ import rotating_proxies
 import os
 
 # 是否为debug模式，如果是, 不使用proxy
-DEBUG = True
+DEBUG = False
 
 tem_dir=['scrapy_logs', 'test_files']
 for dir in tem_dir:
@@ -34,8 +34,8 @@ ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&f
 IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
 # 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
-    'from': 2010,
-    'to': 2020
+    'from': 2019,
+    'to': 2019
 }
 
 #HTTPERROR_ALLOWED_CODES  =[400]
@@ -44,7 +44,7 @@ IEEE_YEAR = {
 START_TIME = datetime.datetime.now()
 
 # LOG
-LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'INFO'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
