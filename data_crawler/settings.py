@@ -14,7 +14,7 @@ import rotating_proxies
 import os
 
 # 是否为debug模式，如果是, 不使用proxy
-DEBUG = True
+DEBUG = False
 
 tem_dir=['scrapy_logs', 'test_files']
 for dir in tem_dir:
@@ -44,7 +44,7 @@ IEEE_YEAR = {
 START_TIME = datetime.datetime.now()
 
 # LOG
-LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'INFO'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
