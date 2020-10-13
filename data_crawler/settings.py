@@ -34,8 +34,8 @@ ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&f
 IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
 # 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
-    'from': 2010,
-    'to': 2020
+    'from': 2019,
+    'to': 2019
 }
 
 #HTTPERROR_ALLOWED_CODES  =[400]

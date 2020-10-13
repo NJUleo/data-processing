@@ -36,13 +36,14 @@ class IEEESpider(scrapy.Spider):
                 headers={
                     'Referer': url,
                     'Host': 'ieeexplore.ieee.org'
-                }
+                },
             )
     
     # 获得此会议历年的列表，遍历判断每个issue是否符合年份要求，符合的继续请求
     def parse_conference_list(self, response):
         conference_list = json.loads(response.text)
-        logging.info("start crawling conference")
+        logging.info("start crawling conferences")
+        logging.info("successfully crawled conferences list, url = {}".format(response.request.headers['Referer']))
         
         for record in conference_list['records']:
             for issue in record['issues']:
@@ -72,6 +73,7 @@ class IEEESpider(scrapy.Spider):
     def parse_issue(self, response):
         content = json.loads(response.text)
         request_body = json.loads(response.request.body)
+        logging.info("start crawling conference issue {}, page {} / {}".format(response.request.headers['Referer'], request_body['pageNumber'], content['totalPages']))
 
         #处理此页的所有文章
         for record in content['records']:
