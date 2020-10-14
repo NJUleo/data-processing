@@ -30,6 +30,7 @@ NEWSPIDER_MODULE = 'data_crawler.spiders'
 # TODO: 切换到需要爬取的url（某个search result）
 IEEE_URL = ['https://ieeexplore.ieee.org/document/']
 ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] # 填入ACM的地址
+ACM_PROCEEDING_URLS = ['https://dl.acm.org/doi/proceedings/10.1145/3238147']
 
 IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
 # 需要的年份(including 'from' and 'to')
