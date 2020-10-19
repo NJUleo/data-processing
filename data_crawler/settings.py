@@ -45,7 +45,7 @@ IEEE_YEAR = {
 START_TIME = datetime.datetime.now()
 
 # LOG
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
@@ -91,6 +91,8 @@ AUTOTHROTTLE_ENABLED = True
 
 # rataing_proxy
 ROTATING_PROXY_LIST_PATH = 'proxies.txt'
+#a number of times to retry downloading a page using a different proxy. After this amount of retries failure is considered a page failure, not a proxy failure. Think of it this way: every improperly detected ban cost you ROTATING_PROXY_PAGE_RETRY_TIMES alive proxies. Default: 5.
+ROTATING_PROXY_PAGE_RETRY_TIMES = 30 
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
