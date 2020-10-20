@@ -38,6 +38,12 @@ IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
+# Database
+MYSQL_HOST = 'localhost'
+MYSQL_DBNAME = 'data_processing'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'root'
+MYSQL_PORT = 3306
 
 #HTTPERROR_ALLOWED_CODES  =[400]
 
@@ -109,6 +115,7 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
     'data_crawler.pipelines.JsonWriterPipeline': 888,
+    'data_crawler.pipelines.MysqlPipeline': 889,
 }
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
