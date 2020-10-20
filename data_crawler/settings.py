@@ -14,7 +14,7 @@ import rotating_proxies
 import os
 
 # 是否为debug模式，如果是, 不使用proxy
-DEBUG = False
+DEBUG = True
 
 tem_dir=['scrapy_logs', 'test_files']
 for dir in tem_dir:
@@ -103,9 +103,8 @@ ROTATING_PROXY_PAGE_RETRY_TIMES = 30
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 
-
 DOWNLOADER_MIDDLEWARES = {
-    'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
+    'data_crawler.middlewares.RandomUserAgentMiddleware': 400 if not DEBUG else None,
     'rotating_proxies.middlewares.RotatingProxyMiddleware': 610 if not DEBUG else None,
     'rotating_proxies.middlewares.BanDetectionMiddleware': 620 if not DEBUG else None,
     'data_crawler.middlewares.RequestLogMiddleware': None,
@@ -114,7 +113,7 @@ DOWNLOADER_MIDDLEWARES = {
 
 ITEM_PIPELINES = {
     'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
-    'data_crawler.pipelines.JsonWriterPipeline': 888,
+    'data_crawler.pipelines.JsonWriterPipeline': 888 if not DEBUG else None,
     'data_crawler.pipelines.MysqlPipeline': 889,
 }
 # Enable or disable extensions
