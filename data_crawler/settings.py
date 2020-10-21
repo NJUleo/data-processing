@@ -14,7 +14,7 @@ import rotating_proxies
 import os
 
 # 是否为debug模式，如果是, 不使用proxy
-DEBUG = False
+DEBUG = True
 
 tem_dir=['scrapy_logs', 'test_files']
 for dir in tem_dir:
@@ -38,6 +38,12 @@ IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
+# Database
+MYSQL_HOST = 'localhost'
+MYSQL_DBNAME = 'data_processing'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'root'
+MYSQL_PORT = 3306
 
 #HTTPERROR_ALLOWED_CODES  =[400]
 
@@ -45,7 +51,7 @@ IEEE_YEAR = {
 START_TIME = datetime.datetime.now()
 
 # LOG
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
@@ -91,10 +97,11 @@ AUTOTHROTTLE_ENABLED = True
 
 # rataing_proxy
 ROTATING_PROXY_LIST_PATH = 'proxies.txt'
+#a number of times to retry downloading a page using a different proxy. After this amount of retries failure is considered a page failure, not a proxy failure. Think of it this way: every improperly detected ban cost you ROTATING_PROXY_PAGE_RETRY_TIMES alive proxies. Default: 5.
+ROTATING_PROXY_PAGE_RETRY_TIMES = 30 
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-
 
 DOWNLOADER_MIDDLEWARES = {
     'data_crawler.middlewares.RandomUserAgentMiddleware': 400,
@@ -107,6 +114,7 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
     'data_crawler.pipelines.JsonWriterPipeline': 888,
+    'data_crawler.pipelines.MysqlPipeline': 889,
 }
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
