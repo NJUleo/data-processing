@@ -1,5 +1,13 @@
 # Data Crawler
 
+## Requirements
+
+python 3.6.9
+
+8.0.20 MySQL Community Server - GPL
+
+other python packages in requirements.txt
+
 ## 项目结构
 
 ```shell
@@ -37,7 +45,7 @@
 scrapy crawl ieee
 ```
 
-随机爬取5篇ieee论文（由于暂时未设置代理，为避免ip封锁，暂时只爬取五篇，如果需要修改，在ieee_paper_spider.py中修改）
+随机爬取5篇IEEE论文（由于暂时未设置代理，为避免ip封锁，暂时只爬取五篇，如果需要修改，在IEEE_paper_spider.py中修改）
 
 由于暂时使用随机爬取，和proxy判断有冲突，如果进行，建议不使用存活率低proxy，可以1. 确保proxies的存活率比较高 2. 将proxies.txt置为空，即不使用proxy
 
