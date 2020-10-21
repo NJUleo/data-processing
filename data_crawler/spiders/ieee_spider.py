@@ -35,7 +35,9 @@ class IEEESpider(scrapy.Spider):
                 callback=self.parse_conference_list,
                 headers={
                     'Referer': url,
-                    'Host': 'ieeexplore.ieee.org'
+                    'Host': 'ieeexplore.ieee.org',
+                    'Origin': self.ieee_base_url,
+                    'Content-Type': 'application/json'
                 },
             )
     
