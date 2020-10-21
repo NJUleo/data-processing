@@ -113,7 +113,7 @@ DOWNLOADER_MIDDLEWARES = {
 
 ITEM_PIPELINES = {
     'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
-    'data_crawler.pipelines.JsonWriterPipeline': 888 if not DEBUG else None,
+    'data_crawler.pipelines.JsonWriterPipeline': 888,
     'data_crawler.pipelines.MysqlPipeline': 889,
 }
 # Enable or disable extensions

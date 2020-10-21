@@ -82,10 +82,11 @@ class MysqlPipeline(object):
         """
         对数据库插入一篇文章，并不需要commit，twisted会自动commit
         """
-        # paper
+        # insert database table: paper
         insert_sql = """
-            insert into paper(id, title, abs, publication, publication_date, link) VALUES(%s,%s,%s,%s,%s,%s)
+            insert into paper(id, title, abs, publication_id, publication_date, link) VALUES(%s,%s,%s,%s,%s,%s)
                     """
+        # TODO: 获得IEEE conference doi（publication_id） 目前只有title，因此暂且作为id保存
         self.execute_sql(
             insert_sql, 
             (item['doi'], item['title'], item['abstract'], item['publicationTitle'], item['publicationYear'], 'doi.org/' + item['doi']),
@@ -94,13 +95,13 @@ class MysqlPipeline(object):
             (item,)
         )
 
-        # researcher paper_researcher
+        # insert database table: researcher paper_researcher
         # 学者的id为 数据库名_数据库内部ID 如IEEE_37086831215
         order = 0
         for author in item['authors']:
             order += 1
 
-            # researcher
+            # insert database table: researcher
             insert_author_sql = """
                             insert into researcher(`id`, `name`) VALUES(%s, %s)
                             """
@@ -110,7 +111,7 @@ class MysqlPipeline(object):
                 cursor
             )
 
-            # paper_researcher
+            # insert database table: paper_researcher
             insert_paper_researcher_sql = """
                             insert into paper_researcher(`pid`, `rid`, `order`) VALUES(%s, %s, %s)
                             """
@@ -119,6 +120,33 @@ class MysqlPipeline(object):
                 (item['doi'], 'IEEE_' + author['id'], order),
                 cursor,
             )
+
+            # insert database table: domain paper_domain
+            # TODO: 暂时把所有的关键词作为domain存储
+            insert_domain_sql = """
+            insert into domain(`name`) VALUES(%s)
+            """
+            insert_paper_domain_sql = """
+            insert into paper_domain(`pid`, `dname`) VALUES(%s, %s)
+            """
+            # 将IEEE controlled index作为domain存储
+            for keyword_group in item['keywords']:
+                if keyword_group['type'] == 'INSPEC: Controlled Indexing':
+                    for controlled_index in keyword_group['kwd']:
+                        # insert database table: domain
+                        self.execute_sql(
+                            insert_domain_sql, 
+                            (controlled_index,),
+                            cursor
+                        )
+                        # insert database table: paper_domain
+                        self.execute_sql(
+                            insert_paper_domain_sql, 
+                            (item['doi'], controlled_index),
+                            cursor
+                        )
+
+
 
     @staticmethod
     def execute_sql(sql, values, cursor, callback_dulp_key = None, callback_dulp_key_args = None):
