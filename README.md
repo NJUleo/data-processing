@@ -42,7 +42,7 @@ other python packages in requirements.txt
 ### IEEE random paper crawler
 
 ```shell
-scrapy crawl ieee
+scrapy crawl IEEE_Random
 ```
 
 随机爬取5篇IEEE论文（由于暂时未设置代理，为避免ip封锁，暂时只爬取五篇，如果需要修改，在IEEE_paper_spider.py中修改）
@@ -52,7 +52,7 @@ scrapy crawl ieee
 ### ACM paper in search result crawler
 
 ```shell
-scrapy crawl ACM_Paper
+scrapy crawl ACM_Search
 ```
 
 爬取data_crawler/settings.py中ACM_URL中的所有页面。这里要求这些页面是ACM的搜索结果页面。爬虫会爬取搜索出的所有文章的相关信息保存于文件。
@@ -64,7 +64,7 @@ scrapy crawl ACM_Paper
 #### command
 
 ```shell
-scrapy crawl IEEE_Paper
+scrapy crawl IEEE_Conferences
 ```
 
 #### settings
