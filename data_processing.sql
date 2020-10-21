@@ -6,22 +6,22 @@ CREATE TABLE `paper` (
     `id` varchar(255) NOT NULL,
     `title` varchar(255) COLLATE utf8_bin NOT NULL,
     `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
-    `publication` varchar(255) COLLATE utf8_bin NOT NULL,
+    `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
     `link` varchar(255) COLLATE utf8_bin NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `domain` (
-    `id` varchar(255) NOT NULL,
     `name` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`id`)
+    `url` varchar(255) COLLATE utf8_bin,
+    PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `affiliation` (
     `id` varchar(255) NOT NULL,
     `name` varchar(255) COLLATE utf8_bin NOT NULL,
-    `description` varchar(4095) COLLATE utf8_bin NOT NULL,
+    `description` varchar(4095) COLLATE utf8_bin,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -49,14 +49,14 @@ CREATE TABLE `paper_researcher` (
 
 CREATE TABLE `paper_reference` (
     `pid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `reference_pid` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`pid`, `reference_pid`)
+    `reference_doi` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`pid`, `reference_doi`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `paper_domain` (
     `pid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `did` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`pid`, `did`)
+    `dname` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`pid`, `dname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `paper_publication` (
@@ -67,8 +67,8 @@ CREATE TABLE `paper_publication` (
 
 CREATE TABLE `researcher_domain` (
     `rid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `did` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`rid`, `did`)
+    `dname` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`rid`, `dname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `researcher_affiliation` (
