@@ -122,7 +122,7 @@ class IEEESpider(scrapy.Spider):
             for i in required:
                 paper_item[i] = content.get(i, None)
 
-            # deal with referenct
+            # deal with reference
             yield scrapy.Request(
                 url='https://ieeexplore.ieee.org/rest/document/{}/references'.format(content['articleNumber']),
                 callback=self.parse_references,

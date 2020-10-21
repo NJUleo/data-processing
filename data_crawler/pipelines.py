@@ -145,6 +145,29 @@ class MysqlPipeline(object):
                             (item['doi'], controlled_index),
                             cursor
                         )
+            
+            # insert database table: paper_reference
+            # 1.这里的reference是所有能够获得doi的文章，其他的reference被忽略；
+            # 2.很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
+            # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
+            for reference in item['references']:
+                insert_paper_reference_sql = """
+                insert into paper_reference(`pid`, `reference_doi`) VALUES(%s, %s)
+                """
+                if 'links' in reference and reference['links'] != None:
+                    reference_doi = ''
+                    if 'acmLink' in reference['links']:
+                        reference_doi = reference['links']['acmLink'][16:]
+                    elif 'crossRefLink' in reference['links']:
+                        reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
+                    else:
+                        continue
+                    self.execute_sql(
+                        insert_paper_reference_sql,
+                        (item['doi'], reference_doi),
+                        cursor
+                    )
+
 
 
 
