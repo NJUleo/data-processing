@@ -17,7 +17,7 @@ from data_crawler.items import ACMPaperItem
 from data_crawler.spiders.acm_paper_parser import parse_acm_paper
 
 class ACMSpider(scrapy.Spider):
-    name = "ACM_Paper"
+    name = "ACM_Search"
     allowed_domains = ["dl.acm.org"]
     start_urls = get_project_settings().get('ACM_URL')
 

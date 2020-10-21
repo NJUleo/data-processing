@@ -15,7 +15,7 @@ from scrapy.utils.project import get_project_settings
 from data_crawler.items import ACMPaperItem, IEEEPaperItem
 
 class IEEESpider(scrapy.Spider):
-    name = "IEEE_Paper"
+    name = "IEEE_Search"
     allowed_domains = ["ieeexplore.ieee.org"]
     ieee_urls = get_project_settings().get('IEEE_CONF_URLS')
     ieee_year = get_project_settings().get('IEEE_YEAR')

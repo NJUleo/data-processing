@@ -15,7 +15,7 @@ from scrapy.utils.project import get_project_settings # 获取settings.py配置�
 
 
 class IEEESpider(scrapy.Spider):
-    name = "ieee"
+    name = "IEEE_Random"
     base_url = get_project_settings().get('IEEE_URL')[0] # 从setting.py配置文件中获取url
 
     def start_requests(self):
