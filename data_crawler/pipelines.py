@@ -122,71 +122,71 @@ class MysqlPipeline(object):
                 cursor,
             )
 
-            # insert database table: domain paper_domain
-            # TODO: 暂时把所有的关键词作为domain存储
-            insert_domain_sql = """
-            insert into domain(`name`) VALUES(%s)
-            """
-            insert_paper_domain_sql = """
-            insert into paper_domain(`pid`, `dname`) VALUES(%s, %s)
-            """
-            # 将IEEE controlled index作为domain存储
-            for keyword_group in item['keywords']:
-                if keyword_group['type'] == 'INSPEC: Controlled Indexing':
-                    for controlled_index in keyword_group['kwd']:
-                        # insert database table: domain
-                        logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(controlled_index, item['doi'], item['title']))
-                        self.execute_sql(
-                            insert_domain_sql, 
-                            (controlled_index,),
-                            cursor
-                        )
-                        # insert database table: paper_domain
-                        self.execute_sql(
-                            insert_paper_domain_sql, 
-                            (item['doi'], controlled_index),
-                            cursor
-                        )
-            
-            # insert database table: paper_reference
-            # 1.这里的reference是所有能够获得doi的文章，其他的reference被忽略；
-            # 2.很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
-            # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
-            for reference in item['references']:
-                insert_paper_reference_sql = """
-                insert into paper_reference(`pid`, `reference_doi`) VALUES(%s, %s)
-                """
-                if 'links' in reference and reference['links'] != None:
-                    reference_doi = ''
-                    if 'acmLink' in reference['links']:
-                        reference_doi = reference['links']['acmLink'][16:]
-                    elif 'crossRefLink' in reference['links']:
-                        reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
-                    else:
-                        continue
+        # insert database table: domain paper_domain
+        # TODO: 暂时把所有的关键词作为domain存储
+        insert_domain_sql = """
+        insert into domain(`name`) VALUES(%s)
+        """
+        insert_paper_domain_sql = """
+        insert into paper_domain(`pid`, `dname`) VALUES(%s, %s)
+        """
+        # 将IEEE controlled index作为domain存储
+        for keyword_group in item['keywords']:
+            if keyword_group['type'] == 'INSPEC: Controlled Indexing':
+                for controlled_index in keyword_group['kwd']:
+                    # insert database table: domain
+                    logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(controlled_index, item['doi'], item['title']))
                     self.execute_sql(
-                        insert_paper_reference_sql,
-                        (item['doi'], reference_doi),
+                        insert_domain_sql, 
+                        (controlled_index,),
+                        cursor
+                    )
+                    # insert database table: paper_domain
+                    self.execute_sql(
+                        insert_paper_domain_sql, 
+                        (item['doi'], controlled_index),
                         cursor
                     )
             
-            # insert database table: publication paper_publication
-            insert_publication_sql = """
-            insert into publication(`id`, `name`, `publication_date`) VALUES(%s, %s, %s)
+        # insert database table: paper_reference
+        # 1.这里的reference是所有能够获得doi的文章，其他的reference被忽略；
+        # 2.很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
+        # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
+        for reference in item['references']:
+            insert_paper_reference_sql = """
+            insert into paper_reference(`pid`, `reference_doi`) VALUES(%s, %s)
             """
-            self.execute_sql(
-                insert_publication_sql,
-                (item['publicationDoi'], item['publicationTitle'], item['publicationYear']),
-                cursor
-            )
-            insert_paper_publication_sql = """
-            insert into paper_publication(`paper_id`, `publication_id`) VALUES(%s, %s)
-            """
-            self.execute_sql(
-                insert_paper_publication_sql,
-                (item['doi'], item['publicationDoi']),
-                cursor
-            )
+            if 'links' in reference and reference['links'] != None:
+                reference_doi = ''
+                if 'acmLink' in reference['links']:
+                    reference_doi = reference['links']['acmLink'][16:]
+                elif 'crossRefLink' in reference['links']:
+                    reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
+                else:
+                    continue
+                self.execute_sql(
+                    insert_paper_reference_sql,
+                    (item['doi'], reference_doi),
+                    cursor
+                )
+        
+        # insert database table: publication paper_publication
+        insert_publication_sql = """
+        insert into publication(`id`, `name`, `publication_date`) VALUES(%s, %s, %s)
+        """
+        self.execute_sql(
+            insert_publication_sql,
+            (item['publicationDoi'], item['publicationTitle'], item['publicationYear']),
+            cursor
+        )
+        insert_paper_publication_sql = """
+        insert into paper_publication(`paper_id`, `publication_id`) VALUES(%s, %s)
+        """
+        self.execute_sql(
+            insert_paper_publication_sql,
+            (item['doi'], item['publicationDoi']),
+            cursor
+        )
 
 
 
