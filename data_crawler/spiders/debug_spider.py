@@ -15,13 +15,12 @@ class DebugSpider(scrapy.Spider):
     def parse(self, response):
         with open('test_files/crawled_items_debug.json') as f:
             for line in f:
+                item = json.loads(line)
                 if 'index_term_tree' in item:
                     # ACM
                     paper = ACMPaperItem()
                 else:
                     paper = IEEEPaperItem()
-                # TODO: 确定文件中是什么类型的item
-                item = json.loads(line)
                 for key in item:
                     paper[key] = item[key]
                 yield paper

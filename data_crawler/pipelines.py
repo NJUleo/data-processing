@@ -52,7 +52,7 @@ class ACMPaper2UnifyPipeline:
     transfer ACM paper item to unify paper item
     """
     def process_item(self, item, spider):
-        def get_ACM_keywords(tree):
+        def get_acm_keywords(tree):
             """
             从ACM index tree中获得所有关键词
             """
@@ -61,7 +61,7 @@ class ACMPaper2UnifyPipeline:
                 # 根结点是没有url的，其title是文章标题
                 result.append(tree['title'])
             for child in tree['child']:
-                result.extend(get_ACM_keywords(child))
+                result.extend(get_acm_keywords(child))
             return result
         # 只处理ACMPaperItem
         if not isinstance(item, ACMPaperItem):
@@ -97,7 +97,7 @@ class ACMPaper2UnifyPipeline:
                     paper_references.append(link_element[len(link_element) - 2] + '/' + link_element[len(link_element) - 1])
         paper['references'] = paper_references
         
-        paper['keywords'] = get_ACM_keywords(item['index_term_tree'])
+        paper['keywords'] = get_acm_keywords(item['index_term_tree'])
 
         return paper
 
