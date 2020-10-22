@@ -8,7 +8,7 @@
 from itemadapter import ItemAdapter, is_item
 import json
 
-from data_crawler.items import IEEEPaperItem, PaperItem
+from data_crawler.items import IEEEPaperItem, PaperItem, ACMPaperItem
 from scrapy.exceptions import DropItem
 
 import pymysql
@@ -46,6 +46,61 @@ class JsonWriterPipeline:
         line = json.dumps(ItemAdapter(item).asdict()) + "\n"
         self.file.write(line)
         return item
+
+class ACMPaper2UnifyPipeline:
+    """
+    transfer ACM paper item to unify paper item
+    """
+    def process_item(self, item, spider):
+        def get_ACM_keywords(tree):
+            """
+            从ACM index tree中获得所有关键词
+            """
+            result = []
+            if tree['url'] != None:
+                # 根结点是没有url的，其title是文章标题
+                result.append(tree['title'])
+            for child in tree['child']:
+                result.extend(get_ACM_keywords(child))
+            return result
+        # 只处理ACMPaperItem
+        if not isinstance(item, ACMPaperItem):
+            return item
+        paper = PaperItem()
+        paper['title'] = item['title']
+
+        order = 0
+        paper_authors = []
+        for author in item['authors']:
+            order += 1
+            paper_author = {
+                'id': 'ACM_' + author['author_profile'][19:], # "dl.acm.org/profile/99659280949" removed 'dl.acm.org/profile/', 19 charactors
+                'name': author['author_name'],
+                'order': order
+            }
+            paper_authors.append(paper_author)
+        paper['authors'] = paper_authors        
+        paper['abstract'] = item['abstract']
+        paper['publicationDoi'] = item['conference']['conference_doi']
+        paper['publicationTitle'] = item['conference']['conference_title']
+        paper['doi'] = item['doi']
+        paper['publicationYear'] = item['month_year'].split()[1]
+        
+        # TODO: 需要把reference改为统一从google scholar来获取
+        paper_references = []
+        for reference in item['references']:
+            for link in reference['reference_links']:
+                if link['link_type'] == 'Digital Library':
+                    # logging.warning(link['link_type'])
+                    # 形式可能是 "/doi/10.1109/TSE.2015.2419611" 或 "https://dl.acm.org/doi/10.1145/3092703.3092718"
+                    link_element = link['link_url'].split('/')
+                    paper_references.append(link_element[len(link_element) - 2] + '/' + link_element[len(link_element) - 1])
+        paper['references'] = paper_references
+        
+        paper['keywords'] = get_ACM_keywords(item['index_term_tree'])
+
+        return paper
+
 
 class IEEEPaper2UnifyPipeline:
     """
