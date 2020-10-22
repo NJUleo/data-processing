@@ -39,16 +39,6 @@ other python packages in requirements.txt
 
 ## 运行爬虫
 
-### IEEE random paper crawler
-
-```shell
-scrapy crawl IEEE_Random
-```
-
-随机爬取5篇IEEE论文（由于暂时未设置代理，为避免ip封锁，暂时只爬取五篇，如果需要修改，在IEEE_paper_spider.py中修改）
-
-由于暂时使用随机爬取，和proxy判断有冲突，如果进行，建议不使用存活率低proxy，可以1. 确保proxies的存活率比较高 2. 将proxies.txt置为空，即不使用proxy
-
 ### ACM paper in search result crawler
 
 ```shell
@@ -56,8 +46,6 @@ scrapy crawl ACM_Search
 ```
 
 爬取data_crawler/settings.py中ACM_URL中的所有页面。这里要求这些页面是ACM的搜索结果页面。爬虫会爬取搜索出的所有文章的相关信息保存于文件。
-
-暂时未实现关键词爬取。
 
 ### IEEE conferences crawler
 

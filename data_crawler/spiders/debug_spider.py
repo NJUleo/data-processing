@@ -1,6 +1,7 @@
 import json
 
 import scrapy
+from data_crawler.items import IEEEPaperItem, ACMPaperItem
 
 class DebugSpider(scrapy.Spider):
     """
@@ -15,4 +16,11 @@ class DebugSpider(scrapy.Spider):
         with open('test_files/crawled_items_debug.json') as f:
             for line in f:
                 item = json.loads(line)
-                yield item
+                if 'index_term_tree' in item:
+                    # ACM
+                    paper = ACMPaperItem()
+                else:
+                    paper = IEEEPaperItem()
+                for key in item:
+                    paper[key] = item[key]
+                yield paper

@@ -113,8 +113,11 @@ DOWNLOADER_MIDDLEWARES = {
 
 ITEM_PIPELINES = {
     'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
-    'data_crawler.pipelines.JsonWriterPipeline': 888,
-    'data_crawler.pipelines.MysqlPipeline': 889,
+    'data_crawler.pipelines.JsonWriterPipeline': 800,
+    'data_crawler.pipelines.IEEEPaper2UnifyPipeline': 850,
+    'data_crawler.pipelines.ACMPaper2UnifyPipeline': 860,
+    'data_crawler.pipelines.IEEEPaperMysqlPipeline': None,
+    'data_crawler.pipelines.UnifyPaperMysqlPipeline': 900,
 }
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
