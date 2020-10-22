@@ -1,6 +1,7 @@
 import json
 
 import scrapy
+from data_crawler.items import IEEEPaperItem
 
 class DebugSpider(scrapy.Spider):
     """
@@ -14,5 +15,9 @@ class DebugSpider(scrapy.Spider):
     def parse(self, response):
         with open('test_files/crawled_items_debug.json') as f:
             for line in f:
+                paper = IEEEPaperItem()
+                # TODO: 确定文件中是什么类型的item
                 item = json.loads(line)
-                yield item
+                for key in item:
+                    paper[key] = item[key]
+                yield paper

@@ -11,6 +11,20 @@ class DataCrawlerItem(scrapy.Item):
     # name = scrapy.Field()
     pass
 
+class PaperItem(scrapy.Item):
+    """
+    IEEE和ACM统一的PaperItem
+    """
+    title = scrapy.Field()
+    authors = scrapy.Field()
+    abstract = scrapy.Field()
+    publicationDoi = scrapy.Field()
+    publicationTitle = scrapy.Field()
+    doi = scrapy.Field()
+    publicationYear = scrapy.Field()
+    references = scrapy.Field() # 引用的文章的doi（可以获得doi的）
+    keywords = scrapy.Field()
+
 class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field()
