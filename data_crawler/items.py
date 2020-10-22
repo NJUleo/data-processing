@@ -15,6 +15,7 @@ class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field()
     abstract = scrapy.Field()
+    publicationDoi = scrapy.Field()
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
     publicationYear = scrapy.Field()

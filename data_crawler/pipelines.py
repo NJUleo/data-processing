@@ -82,6 +82,7 @@ class MysqlPipeline(object):
         """
         对数据库插入一篇文章，并不需要commit，twisted会自动commit
         """
+        logging.debug('inserting paper doi "{}" to mysql'.format(item['doi']))
         # insert database table: paper
         insert_sql = """
             insert into paper(id, title, abs, publication_id, publication_date, link) VALUES(%s,%s,%s,%s,%s,%s)
@@ -89,7 +90,7 @@ class MysqlPipeline(object):
         # TODO: 获得IEEE conference doi（publication_id） 目前只有title，因此暂且作为id保存
         self.execute_sql(
             insert_sql, 
-            (item['doi'], item['title'], item['abstract'], item['publicationTitle'], item['publicationYear'], 'doi.org/' + item['doi']),
+            (item['doi'], item['title'], item['abstract'], item['publicationDoi'], item['publicationYear'], 'doi.org/' + item['doi']),
             cursor,
             self.merge_paper,
             (item,)
@@ -134,6 +135,7 @@ class MysqlPipeline(object):
                 if keyword_group['type'] == 'INSPEC: Controlled Indexing':
                     for controlled_index in keyword_group['kwd']:
                         # insert database table: domain
+                        logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(controlled_index, item['doi'], item['title']))
                         self.execute_sql(
                             insert_domain_sql, 
                             (controlled_index,),
@@ -167,6 +169,24 @@ class MysqlPipeline(object):
                         (item['doi'], reference_doi),
                         cursor
                     )
+            
+            # insert database table: publication paper_publication
+            insert_publication_sql = """
+            insert into publication(`id`, `name`, `publication_date`) VALUES(%s, %s, %s)
+            """
+            self.execute_sql(
+                insert_publication_sql,
+                (item['publicationDoi'], item['publicationTitle'], item['publicationYear']),
+                cursor
+            )
+            insert_paper_publication_sql = """
+            insert into paper_publication(`paper_id`, `publication_id`) VALUES(%s, %s)
+            """
+            self.execute_sql(
+                insert_paper_publication_sql,
+                (item['doi'], item['publicationDoi']),
+                cursor
+            )
 
 
 
