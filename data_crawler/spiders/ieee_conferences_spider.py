@@ -141,7 +141,7 @@ class IEEESpider(scrapy.Spider):
         search_res -- search result for the metadata, which contains the information needed.
         paper_item -- paper information(without references) to be yield
         """
-        save_str_file(response.text, 'IEEE_document.json')
+        #save_str_file(response.text, 'IEEE_document.json')
 
         # 取结果中的metadata部分（论文的元数据，其中包含需要的内容）
         pattern = re.compile('metadata={.*};')
