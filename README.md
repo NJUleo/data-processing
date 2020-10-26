@@ -236,14 +236,43 @@ TODO: 目前对IEEE的处理是将title作为id保存，目前不确定是否能
 |  1   | `rid` | researcher id  | varchar(255) | PRI  |  NO  |      |        |
 |  2   | `aid` | affiliation id | varchar(255) | PRI  |  NO  |      |        |
 
-##### 10. researcher_domain
+##### *10. researcher_domain **弃用***
+
+由于 researcher domain 就是某研究者的所有文章的 domain 的集合，故不在数据爬取时就进行保存这种冗余数据表。
 
 | 序号 |  名称   |     描述      |     类型     |  键  | 为空 | 额外 | 默认值 |
 | :--: | :-----: | :-----------: | :----------: | :--: | :--: | :--: | :----: |
 |  1   |  `rid`  | researcher id | varchar(255) | PRI  |  NO  |      |        |
 |  2   | `dname` |  domain name  | varchar(255) | PRI  |  NO  |      |        |
 
+#####  11. paper_reference_citation
 
+存储暂时只能获得citation的reference，用于之后的进一步爬取
+
+| 序号 |         名称         |                          描述                           |     类型      |  键  | 为空 |      额外      | 默认值 |
+| :--: | :------------------: | :-----------------------------------------------------: | :-----------: | :--: | :--: | :------------: | :----: |
+|  1   |         `id`         | 自增id，没什么意义，只是由于citation比较长，无法作为key |      int      | PRI  |  NO  | auto_increment |        |
+|  2   |        `pid`         |                                                         | varchar(255)  |      |  NO  |                |        |
+|  3   | `reference_citation` |                                                         | varchar(4095) |      |  NO  |                |        |
+
+##### 12.  paper_reference_title
+
+存储暂时只能获得title的reference（存titile主要是因为IEEE给出的citation很奇怪，还不如title），用于之后的进一步爬取
+
+| 序号 |       名称        |                         描述                         |     类型      |  键  | 为空 |      额外      | 默认值 |
+| :--: | :---------------: | :--------------------------------------------------: | :-----------: | :--: | :--: | :------------: | :----: |
+|  1   |       `id`        | 自增id，没什么意义，只是由于title比较长，无法作为key |      int      | PRI  |  NO  | auto_increment |        |
+|  2   |       `pid`       |                                                      | varchar(255)  |      |  NO  |                |        |
+|  3   | `reference_title` |                                                      | varchar(4095) |      |  NO  |                |        |
+
+##### 13. paper_ieee_reference_document
+
+存储暂时只能获得IEEE内部编号的reference，用于之后的进一步爬取
+
+| 序号 |      名称       | 描述 |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :-------------: | :--: | :----------: | :--: | :--: | :--: | :----: |
+|  1   |      `pid`      |      | varchar(255) | PRI  |  NO  |      |        |
+|  2   | `ieee_document` |      | varchar(255) | PRI  |  NO  |      |        |
 
 ## 其他设置
 

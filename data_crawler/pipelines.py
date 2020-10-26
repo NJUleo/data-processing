@@ -88,14 +88,23 @@ class ACMPaper2UnifyPipeline:
         
         # TODO: 需要把reference改为统一从google scholar来获取
         paper_references = []
+        paper_ref_citaion = []
         for reference in item['references']:
+            no_dl = True # whether this reference has DL link, if not, store the citation.
             for link in reference['reference_links']:
                 if link['link_type'] == 'Digital Library':
                     # logging.warning(link['link_type'])
                     # 形式可能是 "/doi/10.1109/TSE.2015.2419611" 或 "https://dl.acm.org/doi/10.1145/3092703.3092718"
                     link_element = link['link_url'].split('/')
                     paper_references.append(link_element[len(link_element) - 2] + '/' + link_element[len(link_element) - 1])
+                    no_dl = False
+            if no_dl:
+                paper_ref_citaion.append(reference['reference_citation'])
+
         paper['references'] = paper_references
+        paper['ref_citation'] = paper_ref_citaion
+        paper['ref_ieee_document'] = []
+        paper['ref_title'] = []
         
         paper['keywords'] = get_acm_keywords(item['index_term_tree'])
 
@@ -132,16 +141,26 @@ class IEEEPaper2UnifyPipeline:
 
         # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
         paper_references_doi = []
+        paper['ref_ieee_document'] = []
+        paper['ref_title'] = []
+        paper['ref_citation'] = []
         for reference in item['references']:
             if 'links' in reference and reference['links'] != None:
                 reference_doi = ''
                 if 'acmLink' in reference['links']:
-                    reference_doi = reference['links']['acmLink'][16:]
+                    if 'https://doi.org/' in reference['links']['acmLink']:
+                        reference_doi = reference['links']['acmLink'][16:]
                 elif 'crossRefLink' in reference['links']:
-                    reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
-                else:
+                    if 'https://doi.org/' in reference['links']['crossRefLink']:
+                        # 不确定是否crossref都是doi开头，故只取doi的
+                        reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
+                elif 'documentLink' in reference['links']:
+                    paper['ref_ieee_document'].append(reference['links']['documentLink'])
                     continue
                 paper_references_doi.append(reference_doi)
+            else:
+                # no links, only avaliable in google scholar
+                paper['ref_title'].append(reference['title'])
         paper['references'] = paper_references_doi
         
         paper_keywords = []
@@ -170,7 +189,8 @@ class UnifyPaperMysqlPipeline(object):
             db=settings['MYSQL_DBNAME'],
             user=settings['MYSQL_USER'],
             password=settings['MYSQL_PASSWORD'],
-            cursorclass=pymysql.cursors.DictCursor  # 指定cursor类型
+            cursorclass=pymysql.cursors.DictCursor,  # 指定cursor类型
+            port=settings['MYSQL_PORT']
         )
         # 连接数据池ConnectionPool，使用pymysql连接
         dbpool = adbapi.ConnectionPool('pymysql', **adbparams)
@@ -283,184 +303,25 @@ class UnifyPaperMysqlPipeline(object):
             cursor
         )
 
-
-
-
-    @staticmethod
-    def execute_sql(sql, values, cursor, callback_dulp_key = None, callback_dulp_key_args = None):
-        """
-        callback_dupl_key是插入数据库时发现key重复时的回调函数(当且仅当传了这个参数)
-        callback_dulp_key_args是一个iterable, unpack之后作为callback_dulp_key's arguments 
-        """
-        try:
-            cursor.execute(sql, values)
-        except pymysql.err.IntegrityError as e:
-            if(e.args[0] == 1062) and (callback_dulp_key != None):
-                # 1062是pymysql duplicate key的错误码
-                callback_dulp_key(*callback_dulp_key_args)   
-            else:
-                # TODO: other exceptions
-                logging.warning(e)
-
-    def merge_paper(self, item):
-        """
-        TODO:发现IEEE ACM的重复文章，合并其中的所有作者、所有affliation
-        """
-        pass
-
-    def handle_error(self, failure):
-        if failure:
-            # 打印错误信息
-            print(failure)
-            logging.error('$ messages from MysqlPipeline: ' + str(failure))
-
-
-
-
-class IEEEPaperMysqlPipeline(object):
-    def __init__(self, dbpool):
-        self.dbpool = dbpool
-
-    @classmethod
-    def from_settings(cls, settings):  # 函数名固定，会被scrapy调用，直接可用settings的值
-        """
-        数据库建立连接
-        :param settings: 配置参数
-        :return: 实例化参数
-        """
-        adbparams = dict(
-            host=settings['MYSQL_HOST'],
-            db=settings['MYSQL_DBNAME'],
-            user=settings['MYSQL_USER'],
-            password=settings['MYSQL_PASSWORD'],
-            cursorclass=pymysql.cursors.DictCursor  # 指定cursor类型
-        )
-        # 连接数据池ConnectionPool，使用pymysql连接
-        dbpool = adbapi.ConnectionPool('pymysql', **adbparams)
-        # 返回实例化参数
-        return cls(dbpool)
-
-    def process_item(self, item, spider):
-        # 只处理IEEEPaperItem
-        if not isinstance(item, IEEEPaperItem):
-            return item
-        """
-        使用twisted将MySQL插入变成异步执行。通过连接池执行具体的sql操作，返回一个对象
-        """
-        
-        query = self.dbpool.runInteraction(self.do_insert_IEEE_paper, item)  # 指定操作方法和操作数据
-        # 添加异常处理
-        query.addCallback(self.handle_error)  # 处理异常
-
-    def do_insert_IEEE_paper(self, cursor, item):
-        """
-        对数据库插入一篇文章，并不需要commit，twisted会自动commit
-        """
-        logging.debug('inserting paper doi "{}" to mysql'.format(item['doi']))
-        # insert database table: paper
-        insert_sql = """
-            insert into paper(id, title, abs, publication_id, publication_date, link) VALUES(%s,%s,%s,%s,%s,%s)
-                    """
-        # TODO: 获得IEEE conference doi（publication_id） 目前只有title，因此暂且作为id保存
-        self.execute_sql(
-            insert_sql, 
-            (item['doi'], item['title'], item['abstract'], item['publicationDoi'], item['publicationYear'], 'doi.org/' + item['doi']),
-            cursor,
-            self.merge_paper,
-            (item,)
-        )
-
-        # insert database table: researcher paper_researcher
-        # 学者的id为 数据库名_数据库内部ID 如IEEE_37086831215
-        order = 0
-        for author in item['authors']:
-            order += 1
-
-            # insert database table: researcher
-            insert_author_sql = """
-                            insert into researcher(`id`, `name`) VALUES(%s, %s)
-                            """
+        # insert database table: paper_ieee_reference_document, paper_reference_citation, paper_reference_title
+        for ieee_doc in item['ref_ieee_document']:
             self.execute_sql(
-                insert_author_sql,
-                ('IEEE_' + author['id'], author['name']),
+                'insert into paper_ieee_reference_document(`pid`, `ieee_document`) VALUES(%s, %s)',
+                (item['doi'], ieee_doc),
                 cursor
             )
-
-            # insert database table: paper_researcher
-            insert_paper_researcher_sql = """
-                            insert into paper_researcher(`pid`, `rid`, `order`) VALUES(%s, %s, %s)
-                            """
+        for title in item['ref_title']:
             self.execute_sql(
-                insert_paper_researcher_sql,
-                (item['doi'], 'IEEE_' + author['id'], order),
-                cursor,
+                'insert into paper_reference_title(`pid`, `reference_title`) VALUES(%s, %s)',
+                (item['doi'], title),
+                cursor
             )
-
-        # insert database table: domain paper_domain
-        # TODO: 暂时把所有的关键词作为domain存储
-        insert_domain_sql = """
-        insert into domain(`name`) VALUES(%s)
-        """
-        insert_paper_domain_sql = """
-        insert into paper_domain(`pid`, `dname`) VALUES(%s, %s)
-        """
-        # 将IEEE controlled index作为domain存储
-        for keyword_group in item['keywords']:
-            if keyword_group['type'] == 'INSPEC: Controlled Indexing':
-                for controlled_index in keyword_group['kwd']:
-                    # insert database table: domain
-                    logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(controlled_index, item['doi'], item['title']))
-                    self.execute_sql(
-                        insert_domain_sql, 
-                        (controlled_index,),
-                        cursor
-                    )
-                    # insert database table: paper_domain
-                    self.execute_sql(
-                        insert_paper_domain_sql, 
-                        (item['doi'], controlled_index),
-                        cursor
-                    )
-            
-        # insert database table: paper_reference
-        # 1.这里的reference是所有能够获得doi的文章，其他的reference被忽略；
-        # 2.很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
-        # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
-        for reference in item['references']:
-            insert_paper_reference_sql = """
-            insert into paper_reference(`pid`, `reference_doi`) VALUES(%s, %s)
-            """
-            if 'links' in reference and reference['links'] != None:
-                reference_doi = ''
-                if 'acmLink' in reference['links']:
-                    reference_doi = reference['links']['acmLink'][16:]
-                elif 'crossRefLink' in reference['links']:
-                    reference_doi = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
-                else:
-                    continue
-                self.execute_sql(
-                    insert_paper_reference_sql,
-                    (item['doi'], reference_doi),
-                    cursor
-                )
-        
-        # insert database table: publication paper_publication
-        insert_publication_sql = """
-        insert into publication(`id`, `name`, `publication_date`) VALUES(%s, %s, %s)
-        """
-        self.execute_sql(
-            insert_publication_sql,
-            (item['publicationDoi'], item['publicationTitle'], item['publicationYear']),
-            cursor
-        )
-        insert_paper_publication_sql = """
-        insert into paper_publication(`paper_id`, `publication_id`) VALUES(%s, %s)
-        """
-        self.execute_sql(
-            insert_paper_publication_sql,
-            (item['doi'], item['publicationDoi']),
-            cursor
-        )
+        for citation in item['ref_citation']:
+            self.execute_sql(
+                'insert into paper_reference_citation(`pid`, `reference_citation`) VALUES(%s, %s)',
+                (item['doi'], citation),
+                cursor
+            )
 
 
 

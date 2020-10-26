@@ -24,6 +24,9 @@ class PaperItem(scrapy.Item):
     publicationYear = scrapy.Field()
     references = scrapy.Field() # 引用的文章的doi（可以获得doi的）
     keywords = scrapy.Field() # keyword list
+    ref_ieee_document = scrapy.Field() # IEEE document id, stored to be crawled later
+    ref_title = scrapy.Field() # reference title, stored to be crawled later. Store this beacause citation that IEEE gives is weired.
+    ref_citation = scrapy.Field()
 
 class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()

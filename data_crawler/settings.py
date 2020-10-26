@@ -38,6 +38,17 @@ IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
+
+# google scholar（由于不可描述的原因，使用南大的镜像站，但是对没个ip初次使用要进行验证）
+GOOGLE_SCHOLAR_URL = 'https://g0.njuu.cf/extdomains/scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q='
+# 是从SEARCH_WORDS搜索还是从数据库获取要搜索的关键词
+FROM_DB = False
+# 搜索用的关键词，事实上是citation
+SEARCH_WORDS = [
+    'Robin Abraham and Martin Erwig. 2006. Inferring Templates from Spreadsheets. In International Conference on Software Engineering (ICSE), 182–191.'
+]
+
+
 # Database
 MYSQL_HOST = 'localhost'
 MYSQL_DBNAME = 'data_processing'
