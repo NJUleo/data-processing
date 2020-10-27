@@ -65,14 +65,29 @@ CREATE TABLE `paper_publication` (
     PRIMARY KEY (`paper_id`, `publication_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `researcher_domain` (
-    `rid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `dname` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`rid`, `dname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `researcher_affiliation` (
     `rid` varchar(255) COLLATE utf8_bin NOT NULL,
     `aid` varchar(255) COLLATE utf8_bin NOT NULL,
     PRIMARY KEY (`rid`, `aid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `paper_ieee_reference_document` (
+    `pid` varchar(255) COLLATE utf8_bin NOT NULL,
+    `ieee_document` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`pid`, `ieee_document`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `paper_reference_citation` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `pid` varchar(255) COLLATE utf8_bin NOT NULL,
+    `reference_citation` varchar(4095) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=5212;
+
+CREATE TABLE `paper_reference_title` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `pid` varchar(255) COLLATE utf8_bin NOT NULL,
+    `reference_title` varchar(4095) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=314;
