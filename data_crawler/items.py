@@ -19,6 +19,7 @@ class PaperItem(scrapy.Item):
     authors = scrapy.Field() # author list; author: dictionary, keys: id, name, order
     abstract = scrapy.Field()
     publicationDoi = scrapy.Field()
+    publication_id = scrapy.Field()
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
     publicationYear = scrapy.Field()
@@ -27,6 +28,8 @@ class PaperItem(scrapy.Item):
     ref_ieee_document = scrapy.Field() # IEEE document id, stored to be crawled later
     ref_title = scrapy.Field() # reference title, stored to be crawled later. Store this beacause citation that IEEE gives is weired.
     ref_citation = scrapy.Field()
+    citation = scrapy.Field() # 被引量
+    id = scrapy.Field() # id
 
 class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()

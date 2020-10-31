@@ -171,42 +171,52 @@ TODO: 目前来看，ieee没有affliation的页面，因此也似乎没有内部
 
 | 序号 |  名称  |        描述        |     类型     |  键  | 为空 | 额外 | 默认值 |
 | :--: | :----: | :----------------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   |  `name`  | 暂时以名字作为主键 | varchar(255) | PRI  |  NO  |      |        |
-|  2   | `url` | 如果是ACM则有url | varchar(255) |      | YES |      |        |
+|  1   |  `id`  |                  | varchar(255) | PRI  |  NO  |      |        |
+|  2   |  `name`  |  | varchar(255) |   |  NO  |      |        |
+|  3   | `url` | 如果是ACM则有url | varchar(255) |      | YES |      |        |
 
 ##### 3. paper
 
 | 序号 |        名称        |        描述        |     类型      |  键  | 为空 | 额外 | 默认值 |
 | :--: | :----------------: | :----------------: | :-----------: | :--: | :--: | :--: | :----: |
-|  1   |        `id`        |    文章的doi号     | varchar(255)  | PRI  |  NO  |      |        |
+|  1   |        `id`        | 事实上是一个十六进制数, 是将 doi 取其 utf-8 编码的十六进制数字符串 | varchar(255)  | PRI  |  NO  |      |        |
 |  2   |      `title`       |                    | varchar(255)  |      |  NO  |      |        |
 |  3   |       `abs`        |      abstract      | varchar(4095) |      |  NO  |      |        |
-|  4   |  `publication_id`  |  发表的会议的doi   | varchar(255)  |      |  NO  |      |        |
-|  5   | `publication_date` | 发表年份，事实上和publication表冗余，但是为了方便还是直接存了 | varchar(255)  |      |  NO  |      |        |
-|  6   |       `link`       | 事实上是doi.org/{paper_doi} | varchar(255)  |      |  NO  |      |        |
+|  4   |  `publication_id`  |  发表的会议的id  | varchar(255)  |      |  NO  |      |        |
+|  5   | `publication_date` | 发表年份，事实上和 publication表冗余，但是为了方便还是直接存了 | varchar(255)  |      |  NO  |      |        |
+|  6   |       `link`       | 事实上是 doi.org/{paper_doi} | varchar(255)  |      |  NO  |      |        |
+|  7  |       `citation`       | 被引量 | int(11) |      |  NO  |      |        |
 
-##### 4. paper_domain
 
-| 序号 |  名称   |    描述     |     类型     |  键  | 为空 | 额外 | 默认值 |
-| :--: | :-----: | :---------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   |  `pid`  |  paper id   | varchar(255) | PRI  |  NO  |      |        |
-|  2   | `dname` | domain name | varchar(255) | PRI  |  NO  |      |        |
-
-##### 5. researcher
+##### 4. researcher
 
 | 序号 |  名称  |                             描述                             |     类型     |  键  | 为空 | 额外 | 默认值 |
 | :--: | :----: | :----------------------------------------------------------: | :----------: | :--: | :--: | :--: | :----: |
 |  1   |  `id`  | ACM_{ACM内部id}或IEEE__{IEEE内部id}，如IEEE_37085628262，说明其主页是https://ieeexplore.ieee.org/author/37085628262 | varchar(255) | PRI  |  NO  |      |        |
 |  2   | `name` |                                                              | varchar(255) |      |  NO  |      |        |
 
+##### 5. publication
+
+TODO: 目前不确定是否所有的会议都有doi，如果没有的话考虑通过其他方式存储
+
+TODO: 目前对IEEE的处理是将title作为id保存，目前不确定是否能从 ieee 获得会议doi. 
+
+| 序号 |        名称        |                             描述                             |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :----------------: | :----------------------------------------------------------: | :----------: | :--: | :--: | :--: | :----: |
+|  1   |        `id`        | 会议 id, 可能通过 doi 编码得到, 也可能用内部 id 标识, 需要进一步考虑。注意是具体某一年的会议，比如第34届ASE，不是历年的ASE汇总的（那个可能没有doi） | varchar(255) | PRI  |  NO  |      |        |
+|  2   |       `name`       |                                                              | varchar(255) |      |  NO  |      |        |
+|  3   | `publication_date` |                          发表的年份                          | varchar(255) |      |  NO  |      |        |
+|  4   |      `impact`      |            影响力因子（TODO:目前不知道怎么获得）             | varchar(255) |      |  NO  |      |        |
+
+
 ##### 6. paper_reference
 
-注意，这里的reference是所有能够获得doi的文章，其他的reference被忽略；另外很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
+注意，这里的reference是所有能够获得doi的文章，其他的reference被忽略；另外很可能这个doi不在爬取的范围内，既在paper表中没有这个rid。
 
-| 序号 |      名称       |        描述         |     类型     |  键  | 为空 | 额外 | 默认值 |
-| :--: | :-------------: | :-----------------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   |      `pid`      |   paper id（doi）   | varchar(255) | PRI  |  NO  |      |        |
-|  2   | `reference_doi` | reference paper doi | varchar(255) | PRI  |  NO  |      |        |
+| 序号 | 名称  |                             描述                             |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :---: | :----------------------------------------------------------: | :----------: | :--: | :--: | :--: | :----: |
+|  1   | `pid` |                           paper id                           | varchar(255) | PRI  |  NO  |      |        |
+|  2   | `rid` | reference paper id ( doi 对应的编号, 这个id可能不在 paper 表中 )/ | varchar(255) | PRI  |  NO  |      |        |
 
 ##### 7. paper_researcher
 
@@ -216,25 +226,22 @@ TODO: 目前来看，ieee没有affliation的页面，因此也似乎没有内部
 |  2   |  `rid`  | researcher id | varchar(255) | PRI  |  NO  |      |        |
 |  3   | `order` |   第几作者    | varchar(255) |      |  NO  |      |        |
 
-##### 8. publication
+##### 8. paper_domain
 
-TODO: 目前不确定是否所有的会议都有doi，如果没有的话考虑通过其他方式存储
-
-TODO: 目前对IEEE的处理是将title作为id保存，目前不确定是否能从ieee获得会议doi
-
-| 序号 |        名称        |                             描述                             |     类型     |  键  | 为空 | 额外 | 默认值 |
-| :--: | :----------------: | :----------------------------------------------------------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   |        `id`        | 会议doi。注意是具体某一年的会议，比如第34届ASE，不是历年的ASE汇总的（那个可能没有doi） | varchar(255) | PRI  |  NO  |      |        |
-|  2   |       `name`       |                                                              | varchar(255) |      |  NO  |      |        |
-|  3   | `publication_date` |                          发表的年份                          | varchar(255) |      |  NO  |      |        |
-|  4   |      `impact`      |            影响力因子（TODO:目前不知道怎么获得）             | varchar(255) |      |  NO  |      |        |
+| 序号 | 名称  |   描述    |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :---: | :-------: | :----------: | :--: | :--: | :--: | :----: |
+|  1   | `pid` | paper id  | varchar(255) | PRI  |  NO  |      |        |
+|  2   | `did` | domain id | varchar(255) | PRI  |  NO  |      |        |
 
 ##### 9. researcher_affiliation
 
-| 序号 | 名称  |      描述      |     类型     |  键  | 为空 | 额外 | 默认值 |
-| :--: | :---: | :------------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   | `rid` | researcher id  | varchar(255) | PRI  |  NO  |      |        |
-|  2   | `aid` | affiliation id | varchar(255) | PRI  |  NO  |      |        |
+代表某学者在某年在某机构发表了文章
+
+| 序号 |  名称  |       描述       |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :----: | :--------------: | :----------: | :--: | :--: | :--: | :----: |
+|  1   | `rid`  |  researcher id   | varchar(255) | PRI  |  NO  |      |        |
+|  2   | `aid`  |  affiliation id  | varchar(255) | PRI  |  NO  |      |        |
+|  3   | `year` | 在某年发表了文章 | varchar(255) | PRI  |  NO  |      |        |
 
 ##### *10. researcher_domain **弃用***
 

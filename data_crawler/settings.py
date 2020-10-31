@@ -127,7 +127,6 @@ ITEM_PIPELINES = {
     'data_crawler.pipelines.JsonWriterPipeline': 800,
     'data_crawler.pipelines.IEEEPaper2UnifyPipeline': 850,
     'data_crawler.pipelines.ACMPaper2UnifyPipeline': 860,
-    'data_crawler.pipelines.IEEEPaperMysqlPipeline': None,
     'data_crawler.pipelines.UnifyPaperMysqlPipeline': 900,
 }
 # Enable or disable extensions

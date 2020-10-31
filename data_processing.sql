@@ -9,13 +9,15 @@ CREATE TABLE `paper` (
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
     `link` varchar(255) COLLATE utf8_bin NOT NULL,
+    `citation` int(11) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `domain` (
+    `id` varchar(255) COLLATE utf8_bin NOT NULL,
     `name` varchar(255) COLLATE utf8_bin NOT NULL,
     `url` varchar(255) COLLATE utf8_bin,
-    PRIMARY KEY (`name`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `affiliation` (
@@ -49,27 +51,21 @@ CREATE TABLE `paper_researcher` (
 
 CREATE TABLE `paper_reference` (
     `pid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `reference_doi` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`pid`, `reference_doi`)
+    `rid` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`pid`, `rid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `paper_domain` (
     `pid` varchar(255) COLLATE utf8_bin NOT NULL,
-    `dname` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`pid`, `dname`)
+    `did` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`pid`, `did`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `paper_publication` (
-    `paper_id` varchar(255) COLLATE utf8_bin NOT NULL,
-    `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`paper_id`, `publication_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 
 CREATE TABLE `researcher_affiliation` (
     `rid` varchar(255) COLLATE utf8_bin NOT NULL,
     `aid` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`rid`, `aid`)
+    `year` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`rid`, `aid`, `year`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `paper_ieee_reference_document` (
