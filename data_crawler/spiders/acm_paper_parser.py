@@ -23,16 +23,16 @@ def parse_acm_paper(spider, response):
 
     result['title'] = paper.xpath('.//div[@class="citation"]//h1[@class="citation__title"]/text()').get()
 
-    # 所有的作者名
-    author_names = paper.xpath('.//div[@class="citation"]//div[@id="sb-1"]/ul/li[@class="loa__item"]//span[@class="loa__author-name"]/span/text()').getall()
-
-    # 所有的作者的主页地址（不包含域"dl.acm.org"），TODO:可以用于后续爬取作者主页
-    author_profiles = paper.xpath('.//div[@class="citation"]//div[@id="sb-1"]/ul/li[@class="loa__item"]//div[@class="author-info"]//div[@class="author-info__body"]/a/@href').getall()
-    if len(author_names) != len(author_profiles):
-        # 作者名和作者主页数量不统一时warning TODO: 改为先找个每个作者的xpath
-        spider.logger.warning('different length between author names and author profiles in %s' % result['title'])
-    else:
-        result['authors'] = [{'author_name': author_names[i], 'author_profile': 'dl.acm.org' + author_profiles[i]} for i in range(0, len(author_names))]
+    # authors
+    result['authors'] = []
+    authors = paper.xpath('.//div[@class="citation"]//div[@id="sb-1"]/ul/li[@class="loa__item"]')
+    for author in authors:
+        result_author = {
+            'author_name': author.xpath('.//span[@class="loa__author-name"]/span/text()').get(),
+            'author_profile': author.xpath('//div[@class="author-info"]//div[@class="author-info__body"]/a/@href').get(),
+            'affiliation': author.xpath('.//div[@class="author-info__body"]/p/text()').getall()
+        }
+        result['authors'].append(result_author)
 
     # 获得发表的相关信息
     publication = paper.xpath('.//div[@class="issue-item__detail"]')

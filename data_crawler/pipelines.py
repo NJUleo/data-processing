@@ -78,7 +78,7 @@ class ACMPaper2UnifyPipeline:
                 'id': 'ACM_' + author['author_profile'][19:], # "dl.acm.org/profile/99659280949" removed 'dl.acm.org/profile/', 19 charactors
                 'name': author['author_name'],
                 'order': order,
-                'affiliation': [] # TODO:
+                'affiliation': author['affiliation']
             }
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
