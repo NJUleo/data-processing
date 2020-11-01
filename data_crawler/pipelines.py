@@ -77,7 +77,8 @@ class ACMPaper2UnifyPipeline:
             paper_author = {
                 'id': 'ACM_' + author['author_profile'][19:], # "dl.acm.org/profile/99659280949" removed 'dl.acm.org/profile/', 19 charactors
                 'name': author['author_name'],
-                'order': order
+                'order': order,
+                'affiliation': [] # TODO:
             }
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
@@ -133,7 +134,8 @@ class IEEEPaper2UnifyPipeline:
             paper_author = {
                 'id': 'IEEE_' + author['id'],
                 'name': author['name'],
-                'order': order
+                'order': order,
+                'affiliation': author['affiliation']
             }
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors
@@ -235,7 +237,7 @@ class UnifyPaperMysqlPipeline(object):
             (paper,)
         )
 
-        # insert database table: researcher paper_researcher
+        # insert database table: researcher paper_researcher affiliation researcher_affiliation
         # 学者的id为 数据库名_数据库内部ID 如IEEE_37086831215
         for author in paper['authors']:
 
@@ -258,6 +260,29 @@ class UnifyPaperMysqlPipeline(object):
                 (paper['id'], author['id'], author['order']),
                 cursor,
             )
+
+            # insert database table: affiliation researcher_affiliation
+            insert_affiliation_sql = """
+            insert into affiliation(`id`, `name`)  VALUES(%s, %s)
+            """
+            insert_researcher_affiliation_sql = """
+            insert into researcher_affiliation(`rid`, `aid`, `year`) VALUES(%s, %s, %s)
+            """
+            for aff in author['affiliation']:
+                # insert database table: affiliation
+                self.execute_sql(
+                    insert_affiliation_sql,
+                    (encode(aff), aff),
+                    cursor,
+                )
+
+                # insert database table: researcher_affiliation
+                self.execute_sql(
+                    insert_researcher_affiliation_sql,
+                    (author['id'], encode(aff), paper['publicationYear']),
+                    cursor,
+                )
+            
 
         # insert database table: domain paper_domain
         # TODO: 暂时把所有的关键词作为domain存储
