@@ -18,7 +18,6 @@ class PaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field() # author list; author: dictionary, keys: id, name, order
     abstract = scrapy.Field()
-    publicationDoi = scrapy.Field()
     publication_id = scrapy.Field()
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
@@ -35,7 +34,8 @@ class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field()
     abstract = scrapy.Field()
-    publicationDoi = scrapy.Field()
+    publication_number = scrapy.Field() # publication 标识某届会议
+    issue_number = scrapy.Field() # IEEE 内部 issue id。issue 表示某届会议的某个出版物
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
     publicationYear = scrapy.Field()

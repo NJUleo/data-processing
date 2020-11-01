@@ -83,7 +83,6 @@ class ACMPaper2UnifyPipeline:
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
         paper['abstract'] = item['abstract']
-        paper['publicationDoi'] = item['conference']['conference_doi']
         paper['publication_id'] = encode(item['conference']['conference_doi'])
         paper['publicationTitle'] = item['conference']['conference_title']
         paper['doi'] = item['doi']
@@ -140,8 +139,7 @@ class IEEEPaper2UnifyPipeline:
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors
         paper['abstract'] = item['abstract']
-        paper['publicationDoi'] = item['publicationDoi']
-        paper['publication_id'] = encode(item['publicationDoi'])
+        paper['publication_id'] = encode('IEEE_' + str(item['publication_number']) + '_' + str(item['issue_number']))
         paper['publicationTitle'] = item['publicationTitle']
         paper['doi'] = item['doi']
         paper['id'] = encode(paper['doi'])

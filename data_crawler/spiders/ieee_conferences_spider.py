@@ -59,8 +59,8 @@ class IEEESpider(scrapy.Spider):
                             'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(record['publicationNumber'])
                         },
                         meta={
-                            'publicationNumber': record['publicationNumber'],
-                            'issueNumber': issue['issueNumber']
+                            'publication_number': record['publicationNumber'],
+                            'issue_number': issue['issueNumber']
                         }
                     )
 
@@ -71,10 +71,8 @@ class IEEESpider(scrapy.Spider):
         主要是获取publication doi然后作为meta传入之后的request
         """
         # save_str_file(response.text, 'IEEE_conference_example.json')
-        content = json.loads(response.text)
-        publicationDoi = content['publicationDoi']
-        publication_number = response.meta['publicationNumber']
-        issue_number = response.meta['issueNumber']
+        publication_number = response.meta['publication_number']
+        issue_number = response.meta['issue_number']
         payload = {
             'punumber': publication_number,
             'isnumber': issue_number
@@ -95,7 +93,8 @@ class IEEESpider(scrapy.Spider):
                 "punumber":publication_number,"isnumber":issue_number,"pageNumber": 1
             }),
             meta={
-                'publicationDoi': publicationDoi
+                'publication_number': response.meta['publication_number'],
+                'issue_number':response.meta['issue_number']
             }
         )
 
@@ -115,7 +114,8 @@ class IEEESpider(scrapy.Spider):
                     url=self.ieee_base_url + record['documentLink'],
                     callback=self.parse_document,
                     meta={
-                        'publicationDoi': response.meta['publicationDoi']
+                        'publication_number': response.meta['publication_number'],
+                        'issue_number':response.meta['issue_number']
                     }
                 )
 
@@ -130,7 +130,8 @@ class IEEESpider(scrapy.Spider):
                         headers=response.request.headers,
                         body=json.dumps(request_body),
                         meta={
-                            'publicationDoi': response.meta['publicationDoi']
+                            'publication_number': response.meta['publication_number'],
+                            'issue_number':response.meta['issue_number']
                         }
                     )
         
@@ -158,7 +159,9 @@ class IEEESpider(scrapy.Spider):
             # contentType: conference, journal, book
             for i in required:
                 paper_item[i] = content.get(i, None)
-            paper_item['publicationDoi'] = response.meta['publicationDoi']
+
+            paper_item['publication_number'] = response.meta['publication_number']
+            paper_item['issue_number'] = response.meta['issue_number']
 
             # deal with reference
             yield scrapy.Request(
@@ -168,6 +171,7 @@ class IEEESpider(scrapy.Spider):
             )
         else:
             yield None
+
     def parse_references(self, response):
         """ parse references of a paper. Yield the complete paper item
         """
