@@ -10,8 +10,7 @@ import json
 
 from data_crawler.items import IEEEPaperItem, PaperItem, ACMPaperItem
 from scrapy.exceptions import DropItem
-from data_crawler.utils import str_2_utf8_hex as encode
-from data_crawler.utils import utf8_hex_2_str as decode
+from data_crawler.utils import hash_str as encode
 
 import pymysql
 import datetime
