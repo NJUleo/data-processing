@@ -87,7 +87,7 @@ class ACMPaper2UnifyPipeline:
         paper['publicationTitle'] = item['conference']['conference_title']
         paper['doi'] = item['doi']
         paper['id'] = encode(item['doi'])
-        paper['citation'] = '0' # TODO:
+        paper['citation'] = item['citation']
         paper['publicationYear'] = item['month_year'].split()[1]
         
         # TODO: 需要把reference改为统一从google scholar来获取

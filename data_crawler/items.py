@@ -52,6 +52,6 @@ class ACMPaperItem(scrapy.Item):
     conference = scrapy.Field() # 会议/期刊
     doi = scrapy.Field()
     abstract = scrapy.Field()
-    citations = scrapy.Field() # 引用该文章的文章
+    citation = scrapy.Field() # paper citation
     references = scrapy.Field() # 该文章引用的文章
     index_term_tree = scrapy.Field() # ACM index term tree

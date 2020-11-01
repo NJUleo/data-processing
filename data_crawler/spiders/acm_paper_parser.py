@@ -87,6 +87,9 @@ def parse_acm_paper(spider, response):
         'child': [parse_index_tree(scrapy.Selector(text=tree_html).xpath('./body/li')) for tree_html in root_selector.xpath('./ol/li').getall()]
     }
 
+    # metric citation number
+    result['citation'] = response.xpath('//span[@class="citation"]/span/text()').get()
+
     spider.logger.info("paper crawled, doi: {}".format(result['doi']))
     return result
     
