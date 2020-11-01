@@ -10,6 +10,7 @@ import json
 
 from data_crawler.items import IEEEPaperItem, PaperItem, ACMPaperItem
 from scrapy.exceptions import DropItem
+from data_crawler.utils import hash_str as encode
 
 import pymysql
 import datetime
@@ -76,14 +77,17 @@ class ACMPaper2UnifyPipeline:
             paper_author = {
                 'id': 'ACM_' + author['author_profile'][19:], # "dl.acm.org/profile/99659280949" removed 'dl.acm.org/profile/', 19 charactors
                 'name': author['author_name'],
-                'order': order
+                'order': order,
+                'affiliation': author['affiliation']
             }
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
         paper['abstract'] = item['abstract']
-        paper['publicationDoi'] = item['conference']['conference_doi']
+        paper['publication_id'] = encode(item['conference']['conference_doi'])
         paper['publicationTitle'] = item['conference']['conference_title']
         paper['doi'] = item['doi']
+        paper['id'] = encode(item['doi'])
+        paper['citation'] = item['citation']
         paper['publicationYear'] = item['month_year'].split()[1]
         
         # TODO: 需要把reference改为统一从google scholar来获取
@@ -129,14 +133,17 @@ class IEEEPaper2UnifyPipeline:
             paper_author = {
                 'id': 'IEEE_' + author['id'],
                 'name': author['name'],
-                'order': order
+                'order': order,
+                'affiliation': author['affiliation']
             }
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors
         paper['abstract'] = item['abstract']
-        paper['publicationDoi'] = item['publicationDoi']
+        paper['publication_id'] = encode('IEEE_' + str(item['publication_number']) + '_' + str(item['issue_number']))
         paper['publicationTitle'] = item['publicationTitle']
         paper['doi'] = item['doi']
+        paper['id'] = encode(paper['doi'])
+        paper['citation'] = item['metrics']['citationCountPaper']
         paper['publicationYear'] = item['publicationYear']
 
         # 对IEEE需要处理两种：crossRefLink acmLink. 第三种是document类型的，需要爬一个新的页面。
@@ -157,6 +164,9 @@ class IEEEPaper2UnifyPipeline:
                 elif 'documentLink' in reference['links']:
                     paper['ref_ieee_document'].append(reference['links']['documentLink'])
                     continue
+                else:
+                    paper['ref_title'].append(reference['title'])
+                    continue
                 paper_references_doi.append(reference_doi)
             else:
                 # no links, only avaliable in google scholar
@@ -171,7 +181,6 @@ class IEEEPaper2UnifyPipeline:
                     paper_keywords.append(controlled_index)
         paper['keywords'] = paper_keywords
         return paper
-        
     
 class UnifyPaperMysqlPipeline(object):
     def __init__(self, dbpool):
@@ -209,26 +218,26 @@ class UnifyPaperMysqlPipeline(object):
         # 添加异常处理
         query.addCallback(self.handle_error)  # 处理异常
 
-    def do_insert_paper(self, cursor, item):
+    def do_insert_paper(self, cursor, paper):
         """
         对数据库插入一篇文章，并不需要commit，twisted会自动commit
         """
-        logging.debug('inserting paper doi "{}" to mysql'.format(item['doi']))
+        logging.debug('inserting paper doi "{}" to mysql'.format(paper['doi']))
         # insert database table: paper
         insert_sql = """
-            insert into paper(id, title, abs, publication_id, publication_date, link) VALUES(%s,%s,%s,%s,%s,%s)
+            insert into paper(id, title, abs, publication_id, publication_date, link, citation) VALUES(%s,%s,%s,%s,%s,%s,%s)
                     """
         self.execute_sql(
             insert_sql, 
-            (item['doi'], item['title'], item['abstract'], item['publicationDoi'], item['publicationYear'], 'doi.org/' + item['doi']),
+            (paper['id'], paper['title'], paper['abstract'], paper['publication_id'], paper['publicationYear'], 'doi.org/' + paper['doi'], paper['citation']),
             cursor,
             self.merge_paper,
-            (item,)
+            (paper,)
         )
 
-        # insert database table: researcher paper_researcher
+        # insert database table: researcher paper_researcher affiliation researcher_affiliation
         # 学者的id为 数据库名_数据库内部ID 如IEEE_37086831215
-        for author in item['authors']:
+        for author in paper['authors']:
 
             # insert database table: researcher
             insert_author_sql = """
@@ -246,29 +255,52 @@ class UnifyPaperMysqlPipeline(object):
                             """
             self.execute_sql(
                 insert_paper_researcher_sql,
-                (item['doi'], author['id'], author['order']),
+                (paper['id'], author['id'], author['order']),
                 cursor,
             )
+
+            # insert database table: affiliation researcher_affiliation
+            insert_affiliation_sql = """
+            insert into affiliation(`id`, `name`)  VALUES(%s, %s)
+            """
+            insert_researcher_affiliation_sql = """
+            insert into researcher_affiliation(`rid`, `aid`, `year`) VALUES(%s, %s, %s)
+            """
+            for aff in author['affiliation']:
+                # insert database table: affiliation
+                self.execute_sql(
+                    insert_affiliation_sql,
+                    (encode(aff), aff),
+                    cursor,
+                )
+
+                # insert database table: researcher_affiliation
+                self.execute_sql(
+                    insert_researcher_affiliation_sql,
+                    (author['id'], encode(aff), paper['publicationYear']),
+                    cursor,
+                )
+            
 
         # insert database table: domain paper_domain
         # TODO: 暂时把所有的关键词作为domain存储
         insert_domain_sql = """
-        insert into domain(`name`) VALUES(%s)
+        insert into domain(`id`, `name`) VALUES(%s, %s)
         """
         insert_paper_domain_sql = """
-        insert into paper_domain(`pid`, `dname`) VALUES(%s, %s)
+        insert into paper_domain(`pid`, `did`) VALUES(%s, %s)
         """
-        for keyword in item['keywords']:
-            logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(keyword, item['doi'], item['title']))
+        for keyword in paper['keywords']:
+            logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(keyword, paper['doi'], paper['title']))
             self.execute_sql(
                 insert_domain_sql, 
-                (keyword,),
+                (encode(keyword), keyword),
                 cursor
             )
             # insert database table: paper_domain
             self.execute_sql(
                 insert_paper_domain_sql, 
-                (item['doi'], keyword),
+                (paper['id'], encode(keyword)),
                 cursor
             )
             
@@ -276,55 +308,45 @@ class UnifyPaperMysqlPipeline(object):
         # 1.这里的reference是所有能够获得doi的文章，其他的reference被忽略；
         # 2.很可能这个doi不在爬取的范围内，既在paper表中没有这个doi。
         insert_paper_reference_sql = """
-        insert into paper_reference(`pid`, `reference_doi`) VALUES(%s, %s)
+        insert into paper_reference(`pid`, `rid`) VALUES(%s, %s)
         """
-        for reference in item['references']:
+        for reference_doi in paper['references']:
             self.execute_sql(
                 insert_paper_reference_sql,
-                (item['doi'], reference),
+                (paper['id'], encode(reference_doi)),
                 cursor
             )
         
-        # insert database table: publication paper_publication
+        # insert database table: publication
         insert_publication_sql = """
         insert into publication(`id`, `name`, `publication_date`) VALUES(%s, %s, %s)
         """
         self.execute_sql(
             insert_publication_sql,
-            (item['publicationDoi'], item['publicationTitle'], item['publicationYear']),
-            cursor
-        )
-        insert_paper_publication_sql = """
-        insert into paper_publication(`paper_id`, `publication_id`) VALUES(%s, %s)
-        """
-        self.execute_sql(
-            insert_paper_publication_sql,
-            (item['doi'], item['publicationDoi']),
+            (paper['publication_id'], paper['publicationTitle'], paper['publicationYear']),
             cursor
         )
 
+        # 仅用于进一步爬取
         # insert database table: paper_ieee_reference_document, paper_reference_citation, paper_reference_title
-        for ieee_doc in item['ref_ieee_document']:
+        for ieee_doc in paper['ref_ieee_document']:
             self.execute_sql(
                 'insert into paper_ieee_reference_document(`pid`, `ieee_document`) VALUES(%s, %s)',
-                (item['doi'], ieee_doc),
+                (paper['id'], ieee_doc),
                 cursor
             )
-        for title in item['ref_title']:
+        for title in paper['ref_title']:
             self.execute_sql(
                 'insert into paper_reference_title(`pid`, `reference_title`) VALUES(%s, %s)',
-                (item['doi'], title),
+                (paper['id'], title),
                 cursor
             )
-        for citation in item['ref_citation']:
+        for citation in paper['ref_citation']:
             self.execute_sql(
                 'insert into paper_reference_citation(`pid`, `reference_citation`) VALUES(%s, %s)',
-                (item['doi'], citation),
+                (paper['id'], citation),
                 cursor
             )
-
-
-
 
     @staticmethod
     def execute_sql(sql, values, cursor, callback_dulp_key = None, callback_dulp_key_args = None):

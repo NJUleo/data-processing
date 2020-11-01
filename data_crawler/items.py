@@ -18,7 +18,7 @@ class PaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field() # author list; author: dictionary, keys: id, name, order
     abstract = scrapy.Field()
-    publicationDoi = scrapy.Field()
+    publication_id = scrapy.Field()
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
     publicationYear = scrapy.Field()
@@ -27,12 +27,15 @@ class PaperItem(scrapy.Item):
     ref_ieee_document = scrapy.Field() # IEEE document id, stored to be crawled later
     ref_title = scrapy.Field() # reference title, stored to be crawled later. Store this beacause citation that IEEE gives is weired.
     ref_citation = scrapy.Field()
+    citation = scrapy.Field() # 被引量
+    id = scrapy.Field() # id
 
 class IEEEPaperItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field()
     abstract = scrapy.Field()
-    publicationDoi = scrapy.Field()
+    publication_number = scrapy.Field() # publication 标识某届会议
+    issue_number = scrapy.Field() # IEEE 内部 issue id。issue 表示某届会议的某个出版物
     publicationTitle = scrapy.Field()
     doi = scrapy.Field()
     publicationYear = scrapy.Field()
@@ -49,6 +52,6 @@ class ACMPaperItem(scrapy.Item):
     conference = scrapy.Field() # 会议/期刊
     doi = scrapy.Field()
     abstract = scrapy.Field()
-    citations = scrapy.Field() # 引用该文章的文章
+    citation = scrapy.Field() # paper citation
     references = scrapy.Field() # 该文章引用的文章
     index_term_tree = scrapy.Field() # ACM index term tree
