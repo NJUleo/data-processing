@@ -1,8 +1,6 @@
 import json
 import re
 import logging
-import random
-
 import scrapy
 
 from data_crawler.spiders.utils import remove_prefix
@@ -12,7 +10,7 @@ from data_crawler.spiders.utils import save_str_file
 
 from scrapy.utils.project import get_project_settings
 
-from data_crawler.items import ACMPaperItem, IEEEPaperItem
+from data_crawler.items import IEEEPaperItem
 
 class IEEESpider(scrapy.Spider):
     name = "IEEE_Conferences"
@@ -50,57 +48,27 @@ class IEEESpider(scrapy.Spider):
         for record in conference_list['records']:
             for issue in record['issues']:
                 if int(issue['year']) >= self.ieee_year['from'] and int(issue['year']) <= self.ieee_year['to']:
-                    yield scrapy.Request(
-                        url='https://ieeexplore.ieee.org/rest/publication/home/metadata?pubid=' + record['publicationNumber'],
-                        callback=self.parse_conference,
-                        method='GET',
+                     yield scrapy.Request(
+                        url='https://ieeexplore.ieee.org/rest/search/pub/{}/issue/{}/toc'.format(record['publicationNumber'], issue['issueNumber']),
+                        callback=self.parse_issue_page,
+                        method='POST',
                         headers={
                             'Host': 'ieeexplore.ieee.org',
-                            'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(record['publicationNumber'])
+                            'Origin': 'https://ieeexplore.ieee.org',
+                            'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(record['publicationNumber']),
+                            'Content-Type': "application/json"
                         },
+                        body=json.dumps({
+                            "punumber":record['publicationNumber'], "isnumber": issue['issueNumber'], "pageNumber": 1
+                        }),
                         meta={
                             'publication_number': record['publicationNumber'],
                             'issue_number': issue['issueNumber']
                         }
                     )
-
-                    
-    
-    def parse_conference(self, response):
-        """
-        主要是获取publication doi然后作为meta传入之后的request
-        """
-        # save_str_file(response.text, 'IEEE_conference_example.json')
-        publication_number = response.meta['publication_number']
-        issue_number = response.meta['issue_number']
-        payload = {
-            'punumber': publication_number,
-            'isnumber': issue_number
-        }
-        payload = json.dumps(payload)
-        # 从此issue的第一页开始
-        yield scrapy.Request(
-            url='https://ieeexplore.ieee.org/rest/search/pub/{}/issue/{}/toc'.format(publication_number, issue_number),
-            callback=self.parse_issue,
-            method='POST',
-            headers={
-                'Host': 'ieeexplore.ieee.org',
-                'Origin': 'https://ieeexplore.ieee.org',
-                'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(publication_number),
-                'Content-Type': "application/json"
-            },
-            body=json.dumps({
-                "punumber":publication_number,"isnumber":issue_number,"pageNumber": 1
-            }),
-            meta={
-                'publication_number': response.meta['publication_number'],
-                'issue_number':response.meta['issue_number']
-            }
-        )
-
     
     # 某issue的某页
-    def parse_issue(self, response):
+    def parse_issue_page(self, response):
         # save_str_file(response.text, 'IEEE_issue_example.json')
         content = json.loads(response.text)
         request_body = json.loads(response.request.body)
@@ -125,7 +93,7 @@ class IEEESpider(scrapy.Spider):
             request_body['pageNumber'] += 1
             yield scrapy.Request(
                         url=response.request.url,
-                        callback=self.parse_issue,
+                        callback=self.parse_issue_page,
                         method='POST',
                         headers=response.request.headers,
                         body=json.dumps(request_body),
