@@ -45,7 +45,7 @@ IEEE_YEAR = {
 # IEEE journal
 # journal 主页的 url。事实上只需要 punumber
 IEEE_JOURNAL_URLS = [
-    # 'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
+    'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
 ]
 IEEE_JOURNAL_YEAR = {
     'from': 2020,
