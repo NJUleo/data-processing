@@ -1,6 +1,5 @@
 import json
 import re
-import logging
 import scrapy
 
 from data_crawler.spiders.utils import remove_prefix
@@ -13,10 +12,12 @@ from scrapy.utils.project import get_project_settings
 from data_crawler.items import IEEEPaperItem
 
 class IEEESpider(scrapy.Spider):
-    name = "IEEE_Conferences"
+    name = "IEEE_Conferences_Journals"
     allowed_domains = ["ieeexplore.ieee.org"]
     ieee_urls = get_project_settings().get('IEEE_CONF_URLS')
     ieee_year = get_project_settings().get('IEEE_YEAR')
+    journal_urls = get_project_settings().get('IEEE_JOURNAL_URLS')
+    journal_year = get_project_settings().get('IEEE_JOURNAL_YEAR')
     ieee_base_url = 'https://ieeexplore.ieee.org'
 
     def __init__(self):
@@ -25,6 +26,7 @@ class IEEESpider(scrapy.Spider):
         self.pageSize = 25 # IEEE advanced search默认每页显示25篇文章。也许以后会变动
     
     def start_requests(self):
+        # crawl conferences
         for url in self.ieee_urls:
             parentId = url[40:47]
             conference_list_url = 'https://ieeexplore.ieee.org/rest/publication/conhome/metadata?parentId=' + parentId
@@ -38,12 +40,57 @@ class IEEESpider(scrapy.Spider):
                     'Content-Type': 'application/json'
                 },
             )
+        
+        # crawl journals
+        for url in self.journal_urls:
+            publication_id = url[57:]
+            get_issue_list_url = 'https://ieeexplore.ieee.org/rest/publication/{}/regular-issues'.format(publication_id)
+            yield scrapy.Request(
+                url=get_issue_list_url,
+                callback=self.parse_journal_issue_list,
+                headers={
+                    'Referer': url,
+                    'Host': self.allowed_domains[0],
+                    'Origin': self.ieee_base_url,
+                    'Content-Type': 'application/json'
+                },
+            )
     
+    def parse_journal_issue_list(self, response):
+        content = json.loads(response.text)
+        for issues_decade in content['issuelist']:
+            # 判断这个 decade 中是否有满足要求的年份
+            if int(issues_decade['decade']) <= self.journal_year['to'] or int(issues_decade['decade']) - 10 >= self.journal_year['from']:
+                for issues_year in issues_decade['years']:
+                    # 判断此年是否满足要求
+                    if int(issues_year['year']) <= self.journal_year['to'] and int(issues_year['year']) >= self.journal_year['from']:
+                        for issue in issues_year['issues']:
+                            # 遍历此年所有的 issue
+                            self.logger.debug('start crawling IEEE journal: issuenumber: {}, year: {}, month: {}'.format(issue['issueNumber'], issue['year'], issue['month']))
+                            yield scrapy.Request(
+                                url='https://ieeexplore.ieee.org/rest/search/pub/{}/issue/{}/toc'.format(issue['publicationNumber'], issue['issueNumber']),
+                                callback=self.parse_issue_page,
+                                method='POST',
+                                headers={
+                                    'Host': 'ieeexplore.ieee.org',
+                                    'Origin': self.ieee_base_url,
+                                    'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(issue['publicationNumber']),
+                                    'Content-Type': "application/json"
+                                },
+                                body=json.dumps({
+                                    "punumber":issue['publicationNumber'], "isnumber": issue['issueNumber'], "pageNumber": 1
+                                }),
+                                meta={
+                                    'publication_number': issue['publicationNumber'],
+                                    'issue_number': issue['issueNumber']
+                                }
+                            )
+
     # 获得此会议历年的列表，遍历获取每个issue的metadata（来获取issue的doi）。遍历判断每个issue是否符合年份要求，符合的继续请求
     def parse_conference_list(self, response):
         conference_list = json.loads(response.text)
-        logging.info("start crawling conferences")
-        logging.info("successfully crawled conferences list, url = {}".format(response.request.headers['Referer']))
+        self.logger.info("start crawling conferences")
+        self.logger.info("successfully crawled conferences list, url = {}".format(response.request.headers['Referer']))
         
         for record in conference_list['records']:
             for issue in record['issues']:
@@ -54,7 +101,7 @@ class IEEESpider(scrapy.Spider):
                         method='POST',
                         headers={
                             'Host': 'ieeexplore.ieee.org',
-                            'Origin': 'https://ieeexplore.ieee.org',
+                            'Origin': self.ieee_base_url,
                             'Referer': 'https://ieeexplore.ieee.org/xpl/conhome/{}/proceeding'.format(record['publicationNumber']),
                             'Content-Type': "application/json"
                         },
@@ -72,7 +119,7 @@ class IEEESpider(scrapy.Spider):
         # save_str_file(response.text, 'IEEE_issue_example.json')
         content = json.loads(response.text)
         request_body = json.loads(response.request.body)
-        logging.info("start crawling conference issue {}, page {} / {}".format(response.request.headers['Referer'], request_body['pageNumber'], content['totalPages']))
+        self.logger.info("start crawling issue, issue number: {}, publication url: {}, page {} / {}".format(response.meta['issue_number'], response.request.headers['Referer'], request_body['pageNumber'], content['totalPages']))
 
         #处理此页的所有文章
         for record in content['records']:
@@ -121,6 +168,7 @@ class IEEESpider(scrapy.Spider):
         # TODO: in what case doesn't the document contain metadata? 
         if search_res:
             content = json.loads(search_res.group()[9:-1])
+            self.logger.debug('starts crawl document title: {}'.format(content.get('title', None)))
             required = ['title', 'authors', 'abstract',
                         'doi', 'publicationTitle', 'publicationYear', 'metrics',
                         'contentType', 'keywords']
