@@ -47,12 +47,12 @@ scrapy crawl ACM_Search
 
 爬取data_crawler/settings.py中ACM_URL中的所有页面。这里要求这些页面是ACM的搜索结果页面。爬虫会爬取搜索出的所有文章的相关信息保存于文件。
 
-### IEEE conferences crawler
+### IEEE crawler
 
 #### command
 
 ```shell
-scrapy crawl IEEE_Conferences
+scrapy crawl IEEE_Conferences_Journals
 ```
 
 #### settings
@@ -60,18 +60,32 @@ scrapy crawl IEEE_Conferences
 /data_crawler/settings.py
 
 ```python
-# conference urls
-IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
+# IEEE
+# IEEE conferences
+IEEE_CONF_URLS = [
+    'https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings'
+]
 # 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
+# IEEE journal
+# journal 主页的 url。事实上只需要 punumber
+IEEE_JOURNAL_URLS = [
+    # 'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
+]
+IEEE_JOURNAL_YEAR = {
+    'from': 2020,
+    'to': 2020
+}
 ```
 
 #### result
 
-IEEE_CONF_URLS中所有会议在IEEE_YEAR范围内的所有文章
+IEEE_CONF_URLS 中所有会议在 IEEE_YEAR 范围内的所有文章
+
+IEEE_JOURNAL_URLS 中所有期刊在 IEEE_JOURNAL_YEAR 范围内的所有文章
 
 ### ACM proceeding crawler
 

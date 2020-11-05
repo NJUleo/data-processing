@@ -32,12 +32,26 @@ IEEE_URL = ['https://ieeexplore.ieee.org/document/']
 ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] # 填入ACM的地址
 ACM_PROCEEDING_URLS = ['https://dl.acm.org/doi/proceedings/10.1145/3238147']
 
-IEEE_CONF_URLS = ['https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings']
+# IEEE
+# IEEE conferences
+IEEE_CONF_URLS = [
+    'https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings'
+]
 # 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
+# IEEE journal
+# journal 主页的 url。事实上只需要 punumber
+IEEE_JOURNAL_URLS = [
+    'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
+]
+IEEE_JOURNAL_YEAR = {
+    'from': 2020,
+    'to': 2020
+}
+
 
 # google scholar（由于不可描述的原因，使用南大的镜像站，但是对没个ip初次使用要进行验证）
 GOOGLE_SCHOLAR_URL = 'https://g0.njuu.cf/extdomains/scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q='
@@ -47,6 +61,7 @@ FROM_DB = False
 SEARCH_WORDS = [
     'Robin Abraham and Martin Erwig. 2006. Inferring Templates from Spreadsheets. In International Conference on Software Engineering (ICSE), 182–191.'
 ]
+
 
 
 # Database
