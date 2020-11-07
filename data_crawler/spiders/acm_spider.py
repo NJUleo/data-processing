@@ -72,7 +72,7 @@ class ACMProceedingSpider(scrapy.Spider):
         for issue_url in issue_urls:
             yield scrapy.Request(
                 url=self.acm_base_url + issue_url,
-                callback=self.parse_journals_issue
+                callback=self.parse_journals_issue,
             )
 
     def parse_journals_issue(self, response):
@@ -83,7 +83,10 @@ class ACMProceedingSpider(scrapy.Spider):
                 issue_url = issue.xpath('.//h5[@class="issue-item__title"]/a/@href').get()
                 yield scrapy.Request(
                     url=self.acm_base_url + issue_url,
-                    callback=self.parse_paper
+                    callback=self.parse_paper,
+                    meta={
+                        'publication_id': response.request.url[18:] # 例如 'https://dl.acm.org/toc/tosem/2015/25/1'，取'/toc/tosem/2015/25/1'
+                    }
                 )
 
 
@@ -133,7 +136,10 @@ class ACMProceedingSpider(scrapy.Spider):
         for paper_doi in papers_dois:
             yield scrapy.Request(
                 url='https://dl.acm.org' + paper_doi,
-                callback=self.parse_paper
+                callback=self.parse_paper,
+                meta={
+                    'publication_id': response.meta['proceeding_doi'],
+                }
             )
     
     def parse_paper(self, response):
@@ -170,20 +176,11 @@ class ACMProceedingSpider(scrapy.Spider):
         # 获得发表的相关信息
         publication = paper.xpath('.//div[@class="issue-item__detail"]')
 
-        # 会议名和会议doi
-        try:
-            conference = {
-                'conference_title': publication.xpath('./a/@title').get(), 
-                'conference_doi': remove_prefix(publication.xpath('./a/@href').get(), '/doi/proceedings/')
-            }
-        except NoPrefixException as e:
-            # conference的doi如果不包含这个前缀的话，全部保存并发出warning。
-            self.logger.warning('conference doi without prefix \'/doi/proceedings/\', got %s, saved as doi instead' % e.args[0])
-            conference = {
-                'conference_title': publication.xpath('./a/@title').get(), 
-                'conference_doi': publication.xpath('./a/@href').get()
-            }
-        result['conference'] = conference
+        # publication_id
+        result['publication_id'] = response.meta['publication_id']
+
+        # publication_title
+        result['publication_title'] = publication.xpath('./a/@title').get()
 
         # paper发表年月
         result['month_year'] = publication.xpath('.//span[@class="epub-section__date"]/text()').get()
@@ -192,8 +189,11 @@ class ACMProceedingSpider(scrapy.Spider):
         try:
             result['doi'] = remove_prefix(response.request.url, 'https://doi.org/doi/')
         except NoPrefixException as e:
-            self.logger.warning('paper url without prefix \'https://doi.org/doi/\', got %s instead, saved as doi instead' % e.args[0])
-            result['doi'] = response.request.url
+            try:
+                result['doi'] = remove_prefix(response.request.url, 'https://dl.acm.org/doi/')
+            except NoPrefixException as e:
+                self.logger.warning('paper url without prefix \'https://doi.org/doi/\', got %s instead, saved as doi instead' % e.args[0])
+                result['doi'] = response.request.url
 
         # paper abstract
         result['abstract'] = paper.xpath('.//div[@class="abstractSection abstractInFull"]/p/text()').get()
