@@ -83,16 +83,16 @@ IEEE_JOURNAL_YEAR = {
 
 #### result
 
-IEEE_CONF_URLS 中所有会议在 IEEE_YEAR 范围内的所有文章
+爬取 IEEE_CONF_URLS 中所有会议在 IEEE_YEAR 范围内的所有文章
 
-IEEE_JOURNAL_URLS 中所有期刊在 IEEE_JOURNAL_YEAR 范围内的所有文章
+爬取 IEEE_JOURNAL_URLS 中所有期刊在 IEEE_JOURNAL_YEAR 范围内的所有文章
 
-### ACM proceeding crawler
+### ACM crawler
 
 #### command
 
 ```shell
-scrapy crawl ACM_Proceedings
+scrapy crawl ACM_Proceedings_Journals
 ```
 
 #### settings
@@ -100,14 +100,28 @@ scrapy crawl ACM_Proceedings
 /data_crawler/settings.py
 
 ```python
-ACM_PROCEEDING_URL = ['https://dl.acm.org/doi/proceedings/10.1145/3238147']
+### ACM conference proceeding urls
+ACM_PROCEEDING_URLS = [
+    'https://dl.acm.org/doi/proceedings/10.1145/3238147'
+]
+### ACM journals
+ACM_JOURNAL_URLS = [
+    'https://dl.acm.org/loi/tosem'
+]
+### 需要的年份(including 'from' and 'to')
+ACM_JOURNAL_YEAR = {
+    'from': 2019,
+    'to': 2019
+}
 ```
 
 可以是多个proceeding
 
 #### result
 
-爬取settings中所有proceeding的所有文章
+爬取 ACM_PROCEEDING_URLS 中的所有文章
+
+爬取 ACM_JOURNAL_URLS 中 journal 在 ACM_JOURNAL_YEAR 范围内的所有文章
 
 ### DEBUG crawler
 
@@ -121,7 +135,7 @@ scrapy crawl debug
 
 #### settings
 
-在test_files/crawled_items_debug.json中放入之前爬的raw json结果
+在test_files/crawled_items_debug.json 中放入之前爬的 raw json 结果
 
 #### result
 
@@ -157,7 +171,7 @@ scrapy crawl debug
    ```python
    ITEM_PIPELINES = {
        'data_crawler.pipelines.RemoveEmptyItemPipeline': 500,
-    'data_crawler.pipelines.JsonWriterPipeline': 888 if not DEBUG else None,
+    	'data_crawler.pipelines.JsonWriterPipeline': 888 if not DEBUG else None,
        'data_crawler.pipelines.MysqlPipeline': 889,
    }
    ```
@@ -211,16 +225,12 @@ TODO: 目前来看，ieee没有affliation的页面，因此也似乎没有内部
 
 ##### 5. publication
 
-TODO: 目前不确定是否所有的会议都有doi，如果没有的话考虑通过其他方式存储
-
-TODO: 目前对IEEE的处理是将title作为id保存，目前不确定是否能从 ieee 获得会议doi. 
-
-| 序号 |        名称        |                             描述                             |     类型     |  键  | 为空 | 额外 | 默认值 |
-| :--: | :----------------: | :----------------------------------------------------------: | :----------: | :--: | :--: | :--: | :----: |
-|  1   |        `id`        | 会议 id, 可能通过 doi 编码得到, 也可能用内部 id 标识, 需要进一步考虑。注意是具体某一年的会议，比如第34届ASE，不是历年的ASE汇总的（那个可能没有doi） | varchar(255) | PRI  |  NO  |      |        |
-|  2   |       `name`       |                                                              | varchar(255) |      |  NO  |      |        |
-|  3   | `publication_date` |                          发表的年份                          | varchar(255) |      |  NO  |      |        |
-|  4   |      `impact`      |            影响力因子（TODO:目前不知道怎么获得）             | varchar(255) |      |  NO  |      |        |
+| 序号 |        名称        |                 描述                  |     类型     |  键  | 为空 | 额外 | 默认值 |
+| :--: | :----------------: | :-----------------------------------: | :----------: | :--: | :--: | :--: | :----: |
+|  1   |        `id`        |        使用对应数据库的内部 id        | varchar(255) | PRI  |  NO  |      |        |
+|  2   |       `name`       |                                       | varchar(255) |      |  NO  |      |        |
+|  3   | `publication_date` |              发表的年份               | varchar(255) |      |  NO  |      |        |
+|  4   |      `impact`      | 影响力因子（TODO:目前不知道怎么获得） | varchar(255) |      |  NO  |      |        |
 
 
 ##### 6. paper_reference

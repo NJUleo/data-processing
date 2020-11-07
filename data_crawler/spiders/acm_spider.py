@@ -19,7 +19,7 @@ from data_crawler.spiders.acm_paper_parser import parse_acm_paper
 from urllib.parse import urlencode
 
 class ACMProceedingSpider(scrapy.Spider):
-    name = "ACM_Proceedings"
+    name = "ACM_Proceedings_Journals"
     acm_base_url = 'https://dl.acm.org'
     allowed_domains = ['dl.acm.org']
     proceeding_urls = get_project_settings().get('ACM_PROCEEDING_URLS')
