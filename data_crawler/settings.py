@@ -27,23 +27,36 @@ SPIDER_MODULES = ['data_crawler.spiders']
 NEWSPIDER_MODULE = 'data_crawler.spiders'
 
 # URL for Spider
-# TODO: 切换到需要爬取的url（某个search result）
-IEEE_URL = ['https://ieeexplore.ieee.org/document/']
-ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] # 填入ACM的地址
-ACM_PROCEEDING_URLS = ['https://dl.acm.org/doi/proceedings/10.1145/3238147']
 
-# IEEE
-# IEEE conferences
+## ACM
+### ACM search result urls
+ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] 
+### ACM conference proceeding urls
+ACM_PROCEEDING_URLS = [
+    # 'https://dl.acm.org/doi/proceedings/10.1145/3238147'
+]
+### ACM journals
+ACM_JOURNAL_URLS = [
+    'https://dl.acm.org/loi/tosem'
+]
+### 需要的年份(including 'from' and 'to')
+ACM_JOURNAL_YEAR = {
+    'from': 2019,
+    'to': 2019
+}
+
+## IEEE
+### IEEE conferences
 IEEE_CONF_URLS = [
     'https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings'
 ]
-# 需要的年份(including 'from' and 'to')
+### 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
     'from': 2019,
     'to': 2019
 }
-# IEEE journal
-# journal 主页的 url。事实上只需要 punumber
+## IEEE journal
+### journal 主页的 url。事实上只需要 punumber
 IEEE_JOURNAL_URLS = [
     'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
 ]
