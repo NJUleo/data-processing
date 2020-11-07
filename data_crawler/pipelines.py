@@ -74,8 +74,10 @@ class ACMPaper2UnifyPipeline:
         paper_authors = []
         for author in item['authors']:
             order += 1
+            author_profile_sp = author['author_profile'].split('/profile/')
+            author_id = author_profile_sp[len(author_profile_sp) - 1]
             paper_author = {
-                'id': 'ACM_' + author['author_profile'][19:], # "dl.acm.org/profile/99659280949" removed 'dl.acm.org/profile/', 19 charactors
+                'id': 'ACM_' + author_id, # d.g. "/profile/99659280949"
                 'name': author['author_name'],
                 'order': order,
                 'affiliation': author['affiliation']
@@ -83,8 +85,8 @@ class ACMPaper2UnifyPipeline:
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
         paper['abstract'] = item['abstract']
-        paper['publication_id'] = encode(item['conference']['conference_doi'])
-        paper['publicationTitle'] = item['conference']['conference_title']
+        paper['publication_id'] = encode(item['publication_id'])
+        paper['publicationTitle'] = item['publication_title']
         paper['doi'] = item['doi']
         paper['id'] = encode(item['doi'])
         paper['citation'] = item['citation']

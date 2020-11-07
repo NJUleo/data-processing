@@ -19,11 +19,6 @@ class IEEESpider(scrapy.Spider):
     journal_urls = get_project_settings().get('IEEE_JOURNAL_URLS')
     journal_year = get_project_settings().get('IEEE_JOURNAL_YEAR')
     ieee_base_url = 'https://ieeexplore.ieee.org'
-
-    def __init__(self):
-        super(IEEESpider, self).__init__()
-        self.startPage = 0
-        self.pageSize = 25 # IEEE advanced search默认每页显示25篇文章。也许以后会变动
     
     def start_requests(self):
         # crawl conferences
