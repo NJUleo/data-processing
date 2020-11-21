@@ -141,6 +141,10 @@ scrapy crawl debug
 
 等于不实际发送请求，而是把之前的结果再次发送给pipeline处理
 
+## 注意事项
+
+* 没有 doi 的文章不会被考虑。
+
 ## 结果查看
 
 ### Raw Json File

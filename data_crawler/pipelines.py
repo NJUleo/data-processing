@@ -28,6 +28,9 @@ class RemoveEmptyItemPipeline:
     def process_item(self, item, spider):
         if item == None:
             raise DropItem("found none item")
+        if 'doi' not in item:
+            # 暂时对于没有 doi 的 drop 掉
+            raise DropItem("paper doi not exist, paper: {}".format(item))
         if isinstance(item, IEEEPaperItem) and item.get('title') == None:
             # TODO: 暂时对于空的paper的判断是通过是否有title来进行，可能要进行修改
             raise DropItem("ieee paper item found: %r" % item)
