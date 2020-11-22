@@ -91,7 +91,7 @@ class ACMPaper2UnifyPipeline:
         paper['publication_id'] = encode(item['publication_id'])
         paper['publicationTitle'] = item['publication_title']
         paper['doi'] = item['doi']
-        paper['id'] = encode(item['doi'])
+        paper['id'] = item['doi']
         paper['citation'] = item['citation']
         paper['publicationYear'] = item['month_year'].split()[1]
         
@@ -147,7 +147,7 @@ class IEEEPaper2UnifyPipeline:
         paper['publication_id'] = encode('IEEE_' + str(item['publication_number']) + '_' + str(item['issue_number']))
         paper['publicationTitle'] = item['publicationTitle']
         paper['doi'] = item['doi']
-        paper['id'] = encode(paper['doi'])
+        paper['id'] = item['articleNumber']
         paper['citation'] = item['metrics']['citationCountPaper']
         paper['publicationYear'] = item['publicationYear']
 
@@ -230,11 +230,18 @@ class UnifyPaperMysqlPipeline(object):
         logging.debug('inserting paper doi "{}" to mysql'.format(paper['doi']))
         # insert database table: paper
         insert_sql = """
-            insert into paper(id, title, abs, publication_id, publication_date, link, citation) VALUES(%s,%s,%s,%s,%s,%s,%s)
+            insert into paper(id, title, abs, publication_id, publication_date, link, doi, citation) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
                     """
         self.execute_sql(
             insert_sql, 
-            (paper['id'], paper['title'], paper['abstract'], paper['publication_id'], paper['publicationYear'], 'doi.org/' + paper['doi'], paper['citation']),
+            (paper['id'],
+            paper['title'],
+            paper['abstract'],
+            paper['publication_id'],
+            paper['publicationYear'],
+            'doi.org/' + paper['doi'] if paper['doi'] != None else None,
+            paper['doi'],
+            paper['citation']),
             cursor,
             self.merge_paper,
             (paper,)
@@ -296,7 +303,7 @@ class UnifyPaperMysqlPipeline(object):
         insert into paper_domain(`pid`, `did`) VALUES(%s, %s)
         """
         for keyword in paper['keywords']:
-            logging.debug('inserting keyword "{}" in paper "{}" "{}"'.format(keyword, paper['doi'], paper['title']))
+            logging.debug('inserting keyword "{}" in paper doi:"{}" title:"{}"'.format(keyword, paper['doi'], paper['title']))
             self.execute_sql(
                 insert_domain_sql, 
                 (encode(keyword), keyword),

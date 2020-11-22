@@ -216,8 +216,9 @@ TODO: 目前来看，ieee没有affliation的页面，因此也似乎没有内部
 |  3   |       `abs`        |      abstract      | varchar(4095) |      |  NO  |      |        |
 |  4   |  `publication_id`  |  发表的会议的id  | varchar(255)  |      |  NO  |      |        |
 |  5   | `publication_date` | 发表年份，事实上和 publication表冗余，但是为了方便还是直接存了 | varchar(255)  |      |  NO  |      |        |
-|  6   |       `link`       | 事实上是 doi.org/{paper_doi} | varchar(255)  |      |  NO  |      |        |
-|  7  |       `citation`       | 被引量 | int(11) |      |  NO  |      |        |
+|  6   |       `link`       | 事实上是 `doi.org/{paper_doi}` | varchar(255)  |      |  YES  |      |        |
+|  7   |       `doi`       | 文章 doi | varchar(255)  |      |  YES  |      |        |
+|  8  |       `citation`       | 被引量 | int(11) |      |  NO  |      |        |
 
 
 ##### 4. researcher

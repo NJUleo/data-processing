@@ -79,8 +79,8 @@ SEARCH_WORDS = [
 
 # Database
 MYSQL_HOST = 'localhost'
-MYSQL_DBNAME = 'data_processing'
-# MYSQL_DBNAME = 'data_processing_IEEE'
+# MYSQL_DBNAME = 'data_processing'
+MYSQL_DBNAME = 'data_processing_IEEE'
 # MYSQL_DBNAME = 'data_processing_ACM'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'root'

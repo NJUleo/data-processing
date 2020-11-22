@@ -8,7 +8,8 @@ CREATE TABLE `paper` (
     `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
-    `link` varchar(255) COLLATE utf8_bin NOT NULL,
+    `link` varchar(255) COLLATE utf8_bin,
+    `doi` varchar(255) COLLATE utf8_bin,
     `citation` int(11) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -92,13 +93,14 @@ DROP DATABASE IF EXISTS data_processing_IEEE;
 CREATE DATABASE data_processing_IEEE;
 USE data_processing_IEEE;
 
-CREATE TABLE `paper_ieee` (
+CREATE TABLE `paper` (
     `id` varchar(255) NOT NULL,
     `title` varchar(255) COLLATE utf8_bin NOT NULL,
     `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
-    `link` varchar(255) COLLATE utf8_bin NOT NULL,
+    `link` varchar(255) COLLATE utf8_bin,
+    `doi` varchar(255) COLLATE utf8_bin,
     `citation` int(11) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -188,7 +190,8 @@ CREATE TABLE `paper` (
     `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
-    `link` varchar(255) COLLATE utf8_bin NOT NULL,
+    `link` varchar(255) COLLATE utf8_bin,
+    `doi` varchar(255) COLLATE utf8_bin,
     `citation` int(11) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
