@@ -75,9 +75,9 @@ class ACMPaper2UnifyPipeline:
         for author in item['authors']:
             order += 1
             author_profile_sp = author['author_profile'].split('/profile/')
-            author_id = author_profile_sp[len(author_profile_sp) - 1]
+            author_id = author_profile_sp[len(author_profile_sp) - 1] # d.g. "/profile/99659280949"
             paper_author = {
-                'id': 'ACM_' + author_id, # d.g. "/profile/99659280949"
+                'id': author_id, 
                 'name': author['author_name'],
                 'order': order,
                 'affiliation': author['affiliation']
@@ -85,7 +85,7 @@ class ACMPaper2UnifyPipeline:
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors        
         paper['abstract'] = item['abstract']
-        paper['publication_id'] = encode(item['publication_id'])
+        paper['publication_id'] = item['publication_id']
         paper['publicationTitle'] = item['publication_title']
         paper['doi'] = item['doi']
         paper['id'] = item['doi']
@@ -130,7 +130,7 @@ class IEEEPaper2UnifyPipeline:
         for author in item['authors']:
             order += 1
             paper_author = {
-                'id': 'IEEE_' + author['id'],
+                'id': author['id'],
                 'name': author['name'],
                 'order': order,
                 'affiliation': author['affiliation']
@@ -138,7 +138,7 @@ class IEEEPaper2UnifyPipeline:
             paper_authors.append(paper_author)
         paper['authors'] = paper_authors
         paper['abstract'] = item['abstract']
-        paper['publication_id'] = encode('IEEE_' + str(item['publication_number']) + '_' + str(item['issue_number']))
+        paper['publication_id'] = str(item['publication_number']) + '_' + str(item['issue_number'])
         paper['publicationTitle'] = item['publicationTitle']
         paper['doi'] = item['doi']
         paper['id'] = item['articleNumber']
