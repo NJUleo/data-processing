@@ -118,8 +118,8 @@ class IEEESpider(scrapy.Spider):
 
         #处理此页的所有文章
         for record in content['records']:
-            # usually record without author is no paper, but information like title, reviewer panel, author index, etc.
-            if 'authors' in record:
+            # usually record without documentLink is not paper, but information like title, reviewer panel, author index, editorial, etc.
+            if 'documentLink' in record:
                 yield scrapy.Request(
                     url=self.ieee_base_url + record['documentLink'],
                     callback=self.parse_document,
