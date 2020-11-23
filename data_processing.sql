@@ -5,7 +5,7 @@ USE data_processing;
 CREATE TABLE `paper` (
     `id` varchar(255) NOT NULL,
     `title` varchar(255) COLLATE utf8_bin NOT NULL,
-    `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
+    `abs` varchar(8191) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
     `link` varchar(255) COLLATE utf8_bin,
@@ -80,7 +80,7 @@ USE data_processing_IEEE;
 CREATE TABLE `paper` (
     `id` varchar(255) NOT NULL,
     `title` varchar(255) COLLATE utf8_bin NOT NULL,
-    `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
+    `abs` varchar(8191) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
     `link` varchar(255) COLLATE utf8_bin,
@@ -155,7 +155,7 @@ USE data_processing_ACM;
 CREATE TABLE `paper` (
     `id` varchar(255) NOT NULL,
     `title` varchar(255) COLLATE utf8_bin NOT NULL,
-    `abs` varchar(4095) COLLATE utf8_bin NOT NULL,
+    `abs` varchar(8191) COLLATE utf8_bin NOT NULL,
     `publication_id` varchar(255) COLLATE utf8_bin NOT NULL,
     `publication_date` varchar(255) COLLATE utf8_bin NOT NULL,
     `link` varchar(255) COLLATE utf8_bin,

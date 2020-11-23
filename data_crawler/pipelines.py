@@ -28,10 +28,10 @@ class RemoveEmptyItemPipeline:
     def process_item(self, item, spider):
         if item == None:
             raise DropItem("found none item")
-        if isinstance(item, IEEEPaperItem) and item.get('title') == None:
+        if isinstance(item, IEEEPaperItem) and (item.get('title') == None or item['authors'] == None):
             # TODO: 暂时对于空的paper的判断是通过是否有title来进行，可能要进行修改
-            raise DropItem("ieee paper item found: %r" % item)
-
+            logging.warning('drop IEEE paper {}'.format(item))
+            raise DropItem("Drop ieee paper item found: %r" % item)
         return item
 
 
@@ -90,7 +90,7 @@ class ACMPaper2UnifyPipeline:
         paper['doi'] = item['doi']
         paper['id'] = item['doi']
         paper['citation'] = item['citation']
-        paper['publicationYear'] = item['month_year'].split()[1]
+        paper['publicationYear'] = item['year']
         
         paper['references'] = []
         for reference in item['references']:
@@ -129,6 +129,9 @@ class IEEEPaper2UnifyPipeline:
         paper_authors = []
         for author in item['authors']:
             order += 1
+            if 'id' not in author:
+                # 对于没有 id 的 author，暂时不考虑。
+                continue
             paper_author = {
                 'id': author['id'],
                 'name': author['name'],
@@ -162,13 +165,13 @@ class IEEEPaper2UnifyPipeline:
                         # 不确定是否crossref都是doi开头，故只取doi的
                         ref['doi'] = reference['links']['crossRefLink'][16:] # remove https://doi.org/, 16 charactors
                 if 'documentLink' in reference['links']:
-                    ref['ieee_document_id'] = reference['links']['documentLink']
+                    ref['ieee_document_id'] = reference['links']['documentLink'].split('/')[2]
             paper['references'].append(ref)
         
         paper_keywords = []
         # 将IEEE controlled index作为domain存储
         for keyword_group in item['keywords']:
-            if keyword_group['type'] == 'INSPEC: Controlled Indexing':
+            if keyword_group.get('type') == 'INSPEC: Controlled Indexing':
                 for controlled_index in keyword_group['kwd']:
                     paper_keywords.append(controlled_index)
         paper['keywords'] = paper_keywords

@@ -48,11 +48,12 @@ ACM_JOURNAL_YEAR = {
 ## IEEE
 ### IEEE conferences
 IEEE_CONF_URLS = [
-    'https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings'
+    'https://ieeexplore.ieee.org/xpl/conhome/1000064/all-proceedings', # ASE
+    'https://ieeexplore.ieee.org/xpl/conhome/1000691/all-proceedings', # ISCE
 ]
 ### 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
-    'from': 2010,
+    'from': 2008,
     'to': 2019
 }
 ## IEEE journal
@@ -61,7 +62,7 @@ IEEE_JOURNAL_URLS = [
     'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
 ]
 IEEE_JOURNAL_YEAR = {
-    'from': 2010,
+    'from': 2009,
     'to': 2020
 }
 

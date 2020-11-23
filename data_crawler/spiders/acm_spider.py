@@ -85,7 +85,8 @@ class ACMProceedingSpider(scrapy.Spider):
                     url=self.acm_base_url + issue_url,
                     callback=self.parse_paper,
                     meta={
-                        'publication_id': response.request.url[18:] # 例如 'https://dl.acm.org/toc/tosem/2015/25/1'，取'/toc/tosem/2015/25/1'
+                        'publication_id': response.request.url[18:], # 例如 'https://dl.acm.org/toc/tosem/2015/25/1'，取'/toc/tosem/2015/25/1',
+                        'year': response.request.url[18:].split('/')[3]
                     }
                 )
 
@@ -183,7 +184,9 @@ class ACMProceedingSpider(scrapy.Spider):
         result['publication_title'] = publication.xpath('./a/@title').get()
 
         # paper发表年月
-        result['month_year'] = publication.xpath('.//span[@class="epub-section__date"]/text()').get()
+        result['year'] = publication.xpath('.//span[@class="epub-section__date"]/text()').get().split()[1]
+        if 'year' in response.meta:
+            result['year'] = response.meta['year']
 
         # paper doi
         try:

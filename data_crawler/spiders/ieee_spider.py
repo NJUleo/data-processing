@@ -187,16 +187,16 @@ class IEEESpider(scrapy.Spider):
         """ parse references of a paper. Yield the complete paper item
         """
         # save_str_file(response.text, 'refereneces.json')
-        references = []
         item = response.meta['paper_item']
         content = json.loads(response.text)
-        for reference in content.get('references'):
-            ref = {}
-            ref['order'] = reference.get('order')
-            ref['text'] = reference.get('text') # could be the reference citation
-            ref['links'] = reference.get('links')
-            ref['title'] = reference.get('title')
-            references.append(ref)
-        item['references'] = references
+        item['references'] = []
+        if 'references' in content:
+            for reference in content.get('references'):
+                ref = {}
+                ref['order'] = reference.get('order')
+                ref['text'] = reference.get('text') # could be the reference citation
+                ref['links'] = reference.get('links')
+                ref['title'] = reference.get('title')
+                item['references'].append(ref)
         yield item
             
