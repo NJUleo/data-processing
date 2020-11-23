@@ -221,17 +221,17 @@ class UnifyPaperMysqlPipeline(object):
                     """
         self.execute_sql(
             insert_sql, 
-            (paper['id'],
-            paper['title'],
-            paper['abstract'],
-            paper['publication_id'],
-            paper['publicationYear'],
-            'doi.org/' + paper['doi'] if paper['doi'] != None else None,
-            paper['doi'],
-            paper['citation']),
-            cursor,
-            self.merge_paper,
-            (paper,)
+            (
+                paper['id'],
+                paper['title'],
+                paper['abstract'],
+                paper['publication_id'],
+                paper['publicationYear'],
+                'doi.org/' + paper['doi'] if paper['doi'] != None else None,
+                paper['doi'],
+                paper['citation']
+            ),
+            cursor
         )
 
         # insert database table: researcher paper_researcher affiliation researcher_affiliation
@@ -327,7 +327,7 @@ class UnifyPaperMysqlPipeline(object):
 
 
     @staticmethod
-    def execute_sql(sql, values, cursor, callback_dulp_key = None, callback_dulp_key_args = None):
+    def execute_sql(sql, values, cursor):
         """
         callback_dupl_key是插入数据库时发现key重复时的回调函数(当且仅当传了这个参数)
         callback_dulp_key_args是一个iterable, unpack之后作为callback_dulp_key's arguments 
@@ -335,18 +335,13 @@ class UnifyPaperMysqlPipeline(object):
         try:
             cursor.execute(sql, values)
         except pymysql.err.IntegrityError as e:
-            if(e.args[0] == 1062) and (callback_dulp_key != None):
+            if(e.args[0] == 1062):
                 # 1062是pymysql duplicate key的错误码
-                callback_dulp_key(*callback_dulp_key_args)   
+                logging.debug(e)
             else:
                 # TODO: other exceptions
                 logging.warning(e)
 
-    def merge_paper(self, item):
-        """
-        TODO:发现IEEE ACM的重复文章，合并其中的所有作者、所有affliation
-        """
-        pass
 
     def handle_error(self, failure):
         if failure:

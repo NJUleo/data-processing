@@ -52,7 +52,7 @@ IEEE_CONF_URLS = [
 ]
 ### 需要的年份(including 'from' and 'to')
 IEEE_YEAR = {
-    'from': 2019,
+    'from': 2010,
     'to': 2019
 }
 ## IEEE journal
@@ -61,7 +61,7 @@ IEEE_JOURNAL_URLS = [
     'https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=32'
 ]
 IEEE_JOURNAL_YEAR = {
-    'from': 2019,
+    'from': 2010,
     'to': 2020
 }
 
@@ -92,7 +92,12 @@ MYSQL_PORT = 3306
 START_TIME = datetime.datetime.now()
 
 # LOG
-LOG_LEVEL = 'DEBUG'
+# logging.CRITICAL - for critical errors (highest severity)
+# logging.ERROR - for regular errors
+# logging.WARNING - for warning messages
+# logging.INFO - for informational messages
+# logging.DEBUG - for debugging messages (lowest severity)
+LOG_LEVEL = 'INFO'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
