@@ -28,7 +28,7 @@ class RemoveEmptyItemPipeline:
     def process_item(self, item, spider):
         if item == None:
             raise DropItem("found none item")
-        if isinstance(item, IEEEPaperItem) and (item.get('title') == None or item['authors'] == None):
+        if isinstance(item, IEEEPaperItem) and (item.get('title') == None or item['authors'] == None or len(item['references']) == 0 ):
             # TODO: 暂时对于空的paper的判断是通过是否有title来进行，可能要进行修改
             logging.warning('drop IEEE paper {}'.format(item))
             raise DropItem("Drop ieee paper item found: %r" % item)
