@@ -169,7 +169,7 @@ class ACMProceedingSpider(scrapy.Spider):
         for author in authors:
             result_author = {
                 'author_name': author.xpath('.//span[@class="loa__author-name"]/span/text()').get(),
-                'author_profile': author.xpath('//div[@class="author-info"]//div[@class="author-info__body"]/a/@href').get(),
+                'author_profile': author.xpath('.//div[@class="author-info"]//div[@class="author-info__body"]/a/@href').get(),
                 'affiliation': author.xpath('.//div[@class="author-info__body"]/p/text()').getall()
             }
             result['authors'].append(result_author)
