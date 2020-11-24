@@ -33,7 +33,41 @@ NEWSPIDER_MODULE = 'data_crawler.spiders'
 ACM_URL = ['https://dl.acm.org/action/doSearch?fillQuickSearch=false&expand=dl&field1=AllField&text1=shit&Ppub=%5B20200907+TO+20201007%5D'] 
 ### ACM conference proceeding urls
 ACM_PROCEEDING_URLS = [
-    'https://dl.acm.org/doi/proceedings/10.1145/3238147'
+    # ASE 19 - 09
+    'https://dl.acm.org/doi/proceedings/10.5555/3382508',
+    'https://dl.acm.org/doi/proceedings/10.1145/3238147',
+    'https://dl.acm.org/doi/proceedings/10.5555/3155562',
+    'https://dl.acm.org/doi/proceedings/10.1145/2970276',
+    'https://dl.acm.org/doi/proceedings/10.5555/3343886',
+    'https://dl.acm.org/doi/proceedings/10.1145/2642937',
+    'https://dl.acm.org/doi/proceedings/10.5555/3107656',
+    'https://dl.acm.org/doi/proceedings/10.1145/2351676',
+    'https://dl.acm.org/doi/proceedings/10.5555/2190078',
+    'https://dl.acm.org/doi/proceedings/10.1145/1858996',
+    'https://dl.acm.org/doi/proceedings/10.5555/1747491',
+    # ICSE 19 - 09
+    'https://dl.acm.org/doi/proceedings/10.5555/3339505',
+    'https://dl.acm.org/doi/proceedings/10.1145/3180155',
+    'https://dl.acm.org/doi/proceedings/10.5555/3097368',
+    'https://dl.acm.org/doi/proceedings/10.1145/2884781',
+    'https://dl.acm.org/doi/proceedings/10.5555/2818754',
+    'https://dl.acm.org/doi/proceedings/10.5555/2819009',
+    'https://dl.acm.org/doi/proceedings/10.1145/2568225',
+    'https://dl.acm.org/doi/proceedings/10.5555/2486788',
+    'https://dl.acm.org/doi/proceedings/10.5555/2337223',
+    'https://dl.acm.org/doi/proceedings/10.5555/2337223',
+    'https://dl.acm.org/doi/proceedings/10.1145/1806799',
+    'https://dl.acm.org/doi/proceedings/10.1145/1810295',
+    'https://dl.acm.org/doi/proceedings/10.5555/1555001',
+    # ICSE Companion 19 - 09
+    'https://dl.acm.org/doi/proceedings/10.5555/3339663',
+    'https://dl.acm.org/doi/proceedings/10.1145/3183440',
+    'https://dl.acm.org/doi/proceedings/10.5555/3098344',
+    'https://dl.acm.org/doi/proceedings/10.1145/2889160',
+    'https://dl.acm.org/doi/proceedings/10.1145/2591062',
+    'https://dl.acm.org/doi/proceedings/10.5555/1585694'
+
+
 ]
 ### ACM journals
 ACM_JOURNAL_URLS = [
@@ -41,7 +75,7 @@ ACM_JOURNAL_URLS = [
 ]
 ### 需要的年份(including 'from' and 'to')
 ACM_JOURNAL_YEAR = {
-    'from': 2019,
+    'from': 2017,
     'to': 2019
 }
 
@@ -82,7 +116,7 @@ SEARCH_WORDS = [
 MYSQL_HOST = 'localhost'
 # MYSQL_DBNAME = 'data_processing'
 MYSQL_DBNAME = 'data_processing_IEEE'
-# MYSQL_DBNAME = 'data_processing_ACM'
+MYSQL_DBNAME = 'data_processing_ACM'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'root'
 MYSQL_PORT = 3306
@@ -98,7 +132,7 @@ START_TIME = datetime.datetime.now()
 # logging.WARNING - for warning messages
 # logging.INFO - for informational messages
 # logging.DEBUG - for debugging messages (lowest severity)
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 LOG_FILE = 'scrapy_logs/Scrapy_{}_{}_{}_{}_{}_{}.log'.format(START_TIME.year, START_TIME.month, START_TIME.day, START_TIME.hour, START_TIME.minute, START_TIME.second)
 
 # Retry Setting
