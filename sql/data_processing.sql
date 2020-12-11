@@ -69,19 +69,19 @@ CREATE TABLE `researcher_affiliation` (
     PRIMARY KEY (`rid`, `aid`, `year`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `publication_merge` (
+CREATE TABLE `publication_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
     PRIMARY KEY (`id_main`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `paper_merge` (
+CREATE TABLE `paper_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
     PRIMARY KEY (`id_main`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `researcher_merge` (
+CREATE TABLE `researcher_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
     PRIMARY KEY (`id_main`, `id`)
