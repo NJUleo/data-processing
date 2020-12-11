@@ -68,3 +68,27 @@ CREATE TABLE `researcher_affiliation` (
     `year` varchar(255) COLLATE utf8_bin NOT NULL,
     PRIMARY KEY (`rid`, `aid`, `year`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `publication_merge` (
+    `id_main` varchar(255) NOT NULL,
+    `id` varchar(255) NOT NULL,
+    PRIMARY KEY (`id_main`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `paper_merge` (
+    `id_main` varchar(255) NOT NULL,
+    `id` varchar(255) NOT NULL,
+    PRIMARY KEY (`id_main`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `researcher_merge` (
+    `id_main` varchar(255) NOT NULL,
+    `id` varchar(255) NOT NULL,
+    PRIMARY KEY (`id_main`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `researcher_all` (
+    `id` varchar(255) NOT NULL,
+    `name` varchar(255) COLLATE utf8_bin NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
