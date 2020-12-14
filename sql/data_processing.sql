@@ -72,19 +72,25 @@ CREATE TABLE `researcher_affiliation` (
 CREATE TABLE `publication_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
-    PRIMARY KEY (`id_main`, `id`)
+    `src` varchar(255) NOT NULL,
+    `merged` BOOLEAN,
+    PRIMARY KEY (`id_main`, `id`, `src`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `paper_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
-    PRIMARY KEY (`id_main`, `id`)
+    `src` varchar(255) NOT NULL,
+    `merged` BOOLEAN,
+    PRIMARY KEY (`id_main`, `id`, `src`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `researcher_mapping` (
     `id_main` varchar(255) NOT NULL,
     `id` varchar(255) NOT NULL,
-    PRIMARY KEY (`id_main`, `id`)
+    `src` varchar(255) NOT NULL,
+    `merged` BOOLEAN,
+    PRIMARY KEY (`id_main`, `id`, `src`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `researcher_all` (
