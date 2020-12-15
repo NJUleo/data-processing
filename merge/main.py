@@ -269,6 +269,7 @@ def merge_researcher(paper_mapping):
         record['rid'] = hash_str('acm' + record['rid'])
         return record
 
+    # researcher_paper 合并，将其中的 pid rid 更改
     researcher_paper = list(map(map_paper_id_in_research_paper_ieee, ieee_researcher_paper))
     researcher_paper += list(map(map_paper_id_in_research_paper_acm, acm_researcher_paper))
     # 找不到 pid 的舍去
@@ -336,13 +337,32 @@ def merge_researcher(paper_mapping):
         src='ACM',
     )
     researchers_mapping = list(map(lambda x: list(x), researchers_mapping))
+    dict_rid_2_researcher_mapping = {}
+    for i in researchers_mapping:
+        dict_rid_2_researcher_mapping[i[1]] = i
+
     for i in researchers_mapping:
         i[1] = researchers_id_mapping[i[1]]['src_id']
-    
-        
-    print('haha')
 
-    print('haha')
+
+    # 将 researcher_paper 中被合并的 rid 扔掉
+    def rm_merged_researchers(rp):
+        return not dict_rid_2_researcher_mapping[rp['rid']][3]
+    researcher_paper = list(filter(rm_merged_researchers, researcher_paper))
+    researchers = list(map(lambda x: (
+        x['id'],
+        x['name']
+    ), researchers))
+    researcher_paper = list(map(lambda x: (
+        x['pid'],
+        x['rid'],
+        x['order']
+    ), researcher_paper))
+    my_insert_many(connection_merge, 'insert ignore into researcher_mapping(id_main, id, src, merged) values(%s, %s, %s, %s)', researchers_mapping)
+    my_insert_many(connection_merge, 'insert ignore into researcher(id, name) values(%s, %s)', researchers)
+    my_insert_many(connection_merge, 'insert ignore into paper_researcher(`pid`, `rid`, `order`) values(%s, %s, %s)', researcher_paper)
+
+    return researchers_mapping
             
     
 publication_mapping = merge_publication()
@@ -350,6 +370,6 @@ paper_mapping = merge_paper()
 
 merge_domain()
 merge_affiliation()
-merge_researcher(paper_mapping)
+researcher_mapping = merge_researcher(paper_mapping)
 
 print('haha')
