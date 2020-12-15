@@ -36,23 +36,27 @@
 
 ## 额外表项
 
-#### publication_merge
+#### publication_mapping
 
 id_main 为主 id
 
-#### paper_merge
+#### paper_mapping
 
 记录两个 paper（一定是非同源得）的合并
 
 id_main: 主id（这里是 IEEE paper id）
 
-id: 被合并的 id（ACM paper id）
+id: 原 id
 
-#### researcher_merge
+src： （acm 或 ieee）来源于哪
+
+#### researcher_mapping
 
 id_main
 
 id
+
+src： （acm 或 ieee）
 
 #### researcher_all
 
@@ -68,7 +72,7 @@ id
 
    1. （所有入库时修改 publication id）
 
-   2. 所有 IEEE paper 入库，id 加 IEEE 前缀，然后 encode
+   2. 所有 IEEE paper 入库，id 加 IEEE 前缀，然后 encode。记录于mapping表
 
    3. 遍历 ACM paper，判断合并库是否存在对应的paper
 
@@ -98,3 +102,4 @@ id
    2. 对 paper_merge 表中的所有文章，如果在 paper_researcher_all 有 order 相同，pid 在 paper_merge 中的，记录于 researcher_merge 中。这一步需要保证选取了“主 id”，避免之后还需要做图的遍历。把主 id 的paper_researcher 入合并库 paper_researcher 中
    3. 通过 researcher_merge 对 researcher_all 合并（修改id），结果加入合并库的 researcher 表中
    4. researcher_affiliation 把 researcher id 修改为主 id（如果有），然后入合并库
+
