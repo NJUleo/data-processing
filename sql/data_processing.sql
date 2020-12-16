@@ -92,9 +92,3 @@ CREATE TABLE `researcher_mapping` (
     `merged` BOOLEAN,
     PRIMARY KEY (`id_main`, `id`, `src`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `researcher_all` (
-    `id` varchar(255) NOT NULL,
-    `name` varchar(255) COLLATE utf8_bin NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
