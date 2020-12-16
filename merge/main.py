@@ -53,7 +53,7 @@ def my_select(connection, sql):
         res = cursor.fetchall()
         return res
     except Exception as e:
-        logging.warning('error in select, sql {}'.format(sql))
+        logging.warning('error in select, sql: "{}"'.format(sql))
         connection.rollback()
         raise e
     finally:
@@ -67,12 +67,25 @@ def my_insert_many(connection, sql, values):
     except pymysql.err.IntegrityError as e:
         logging.warning(e.args[1])
     except Exception as e:
-        logging.warning('error in insert, sql {}'.format(sql))
+        logging.warning('error in insert, sql: "{}"'.format(sql))
         connection.rollback()
         raise e
     finally:
         cursor.close()
 
+def my_delete_update(connection, sql):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        connection.commit()
+    except pymysql.err.IntegrityError as e:
+        logging.warning(e.args[1])
+    except Exception as e:
+        logging.warning('error in delete/update, sql: "{}"'.format(sql))
+        connection.rollback()
+        raise e
+    finally:
+        cursor.close()
 
 def get_same_from_it(src, target, is_equal = lambda src_item, target_item: src_item == target_item):
     """
@@ -102,14 +115,14 @@ def change_merge_map(from_list, to_list, mapping_list, change = lambda x: x, upd
                 src,
                 True
             ))
-            # 所有其他的对应的也认为是 true
+            # 所有其他的对应的 merged 也认为是 true
             for i in mapping_list:
                 if i[0] == main_record['id'] and i[3] == False:
                     new_map_record = (i[0], i[1], i[2], True)
                     mapping_list.remove(i)
                     mapping_list.append(new_map_record)
                     break
-            equal_callback(main_record, item)
+            equal_callback(main_record, new_main_record)
             logging.info('found equal{},{}'.format(main_record, item))
         else:
             to_list.append(new_main_record)
@@ -149,8 +162,19 @@ def merge_publication():
     my_insert_many(connection_merge, 'insert ignore into publication(`id`, `name`, `publication_date`, `impact`) VALUES(%s, %s, %s, %s)', publications)
     return publication_mapping
 
+# %%
+def merge_publication_by_id(id1, id2):
+    """
+    将数据库中的两个 publication 合并， 如果其中有不存在的，则直接认为已经合并，修改 pubclaition 和 publication mapping. 将 id2 对应的合并入 id1
+    """
+    pubs = my_select(connection_merge, 'select * from publication where `id` = "{}" or `id` = "{}"'.format(id1, id2))
+    if len(pubs) != 2:
+        return
+    my_delete_update(connection_merge, 'delete from publication where `id` = "{}"'.format(id2))
+    my_delete_update(connection_merge, 'UPDATE publication_mapping SET `id_main` = "{}", `merged` = "{}" where `id_main` = "{}"'.format(id1, 1, id2))
 
-def merge_paper():
+# %%
+def merge_paper(publication_mapping):
     # paper
     # TODO: 也许全加载到内存不是一个好主意。以后再重构。
     paper_mapping = []
@@ -167,22 +191,40 @@ def merge_paper():
         if p1['title'] == p2['title']:
             return True
         return False
+
     def update_paper(main_record, new_record):
         if main_record['link'] == None:
             main_record['link'] = new_record['link']
         if main_record['doi'] == None:
             main_record['doi'] = new_record['doi']
         return main_record
-    change_merge_map(paper_ieee, papers, paper_mapping, change=change_ieee_id, is_equal=paper_is_equal, src='IEEE', update=update_paper)
-    change_merge_map(paper_acm, papers, paper_mapping, change=change_acm_id, is_equal=paper_is_equal, src='ACM', update=update_paper)
 
-    for paper in papers:
-        # map the publication id
-        publication_map_record = get_same_from_it(publication_mapping, paper, lambda x, y: x[1] == y['publication_id'])
-        if publication_map_record != None:
-            paper['publication_id'] = publication_map_record[0]
-        else:
-            logging.warning('paper with no publication id in publication table paper id {}'.format(paper['id']))
+    def callback_paper_merge(paper1, paper2):
+        """ callback after merge the paper, merge the publication
+        """
+        merge_publication_by_id(paper1['publication_id'], paper2['publication_id'])
+        # logging.debug('merge papers: "{}", "{}"'.format(paper1, paper2))
+
+    def change_paper(paper, src, publication_mapping_dict):
+        if src == 'IEEE':
+            paper = change_ieee_id(paper)
+            if (paper['publication_id'], 'IEEE') not in publication_mapping_dict:
+                # TODO:
+                return paper
+            paper['publication_id'] = publication_mapping_dict[(paper['publication_id'], 'IEEE')]['id_main']
+        elif src == 'ACM':
+            paper = change_acm_id(paper)
+            if (paper['publication_id'], 'ACM') not in publication_mapping_dict:
+                # TODO:
+                return paper
+            paper['publication_id'] = publication_mapping_dict[(paper['publication_id'], 'ACM')]['id_main']        
+        return paper
+
+    publication_mapping_dict = {}
+    for i in publication_mapping:
+        publication_mapping_dict[(i[1], i[2])] = {'id_main': i[0], 'id': i[1], 'src': i[2], 'merged': i[3]}
+    change_merge_map(paper_ieee, papers, paper_mapping, change=lambda x, src='IEEE', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='IEEE', update=update_paper, equal_callback=callback_paper_merge)
+    change_merge_map(paper_acm, papers, paper_mapping, change=lambda x, src='ACM', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='ACM', update=update_paper,equal_callback=callback_paper_merge)
 
     papers = map(
         lambda x: (
@@ -368,12 +410,17 @@ def merge_researcher(paper_mapping):
 
 # %%
 publication_mapping = merge_publication()
-paper_mapping = merge_paper()
 
 # %%
+paper_mapping = merge_paper(publication_mapping)
 
+# %%
 merge_domain()
+
+# %%
 merge_affiliation()
+
+# %%
 researcher_mapping = merge_researcher(paper_mapping)
 
 # %%
@@ -462,9 +509,34 @@ def merge_paper_reference(paper_mapping):
     
     my_insert_many(connection_merge, 'insert ignore into paper_reference(pid, rid) values(%s, %s)', result_paper_reference)
 
-
-    print('haha')
 merge_paper_reference(paper_mapping)
 
-print('haha')
+# %%
+def merge_researcher_affiliation():
+    ieee_researcher_affiliation = my_select(connection_ieee, 'select * from researcher_affiliation')
+    acm_researcher_affiliation = my_select(connection_acm, 'select * from researcher_affiliation')
+    researcher_mapping = my_select(connection_merge, 'select * from researcher_mapping')
+    researcher_mapping_dict = {} # (rid, src) -> 
+    for i in researcher_mapping:
+        researcher_mapping_dict[(i['id'], i['src'])] = i
+    result_researcher_affiliation = []
+    for i in ieee_researcher_affiliation:
+        result_researcher_affiliation.append(
+            (
+                researcher_mapping_dict[(i['rid'], 'IEEE')]['id_main'],
+                i['aid'],
+                i['year']
+            )
+        )
+    for i in acm_researcher_affiliation:
+        result_researcher_affiliation.append(
+            (
+                researcher_mapping_dict[(i['rid'], 'ACM')]['id_main'],
+                i['aid'],
+                i['year']
+            )
+        )
+    my_insert_many(connection_merge, 'insert ignore into researcher_affiliation(`rid`, `aid`, `year`) values(%s, %s, %s)', result_researcher_affiliation)
+    print('haha')
+merge_researcher_affiliation()
 # %%
