@@ -1,3 +1,4 @@
+# %%
 import configparser
 import pymysql
 import logging
@@ -8,7 +9,7 @@ from functools import cmp_to_key
 from utils import hash_str
 from utils import encode_id
 config = configparser.ConfigParser()
-config.read('./merge/merge.ini')
+config.read('/home/leo/Desktop/ASE/data-processing/merge/merge.ini')
 
 
 # Connect to database merge
@@ -363,13 +364,107 @@ def merge_researcher(paper_mapping):
     my_insert_many(connection_merge, 'insert ignore into paper_researcher(`pid`, `rid`, `order`) values(%s, %s, %s)', researcher_paper)
 
     return researchers_mapping
-            
-    
+
+
+# %%
 publication_mapping = merge_publication()
 paper_mapping = merge_paper()
+
+# %%
 
 merge_domain()
 merge_affiliation()
 researcher_mapping = merge_researcher(paper_mapping)
 
+# %%
+def merge_paper_reference(paper_mapping):
+    ieee_paper_reference = my_select(connection_ieee, 'select * from paper_reference')
+    acm_paper_reference = my_select(connection_acm, 'select * from paper_reference')
+    paper_mapping_dict = {} # (id, src) -> (main_id, id, src, merged)
+    for i in paper_mapping:
+        paper_mapping_dict[(i[1], i[2])] = i
+    def paper_is_merged_by_id(paper_id, src, paper_mapping_dict):
+        """ 给定 id src，判断 paper 是否被 merge 了。如果没有这个文章记录也返回True
+        """
+        result =  paper_mapping_dict.get((paper_id, src))
+        if result == None:
+            return True
+        else:
+            return result[3]
+    
+    # 过滤掉被 merge 的文章的 reference 记录
+    ieee_paper_reference = list(filter(
+        lambda x, paper_mapping=paper_mapping_dict: 
+            not paper_is_merged_by_id(x['pid'], 'IEEE', paper_mapping_dict), 
+        ieee_paper_reference
+    ))
+    acm_paper_reference = list(filter(
+        lambda x, paper_mapping=paper_mapping_dict: 
+            not paper_is_merged_by_id(x['pid'], 'ACM', paper_mapping_dict), 
+        acm_paper_reference
+    ))
+    def clean_title(title: str):
+        """
+        remove " in start or end
+        remove , in end
+        replace ' to \'
+        """
+        if title.startswith('"') and title.endswith('"'):
+            title = title[1:-1]
+        if title.endswith(','):
+            title = title[:-1]
+        result = ''
+        for i in title:
+            if i != '\'':
+                result += i
+            else:
+                result += '\\' + i
+        return result
+    # change pid; remove " and , in title
+    for i in ieee_paper_reference:
+        i['pid'] = paper_mapping_dict[i['pid'], 'IEEE'][0]
+        if i.get('r_title') != None:
+            i['r_title'] = clean_title(i['r_title'])
+    for i in acm_paper_reference:
+        i['pid'] = paper_mapping_dict[i['pid'], 'ACM'][0]
+        if i.get('r_title') != None:
+            i['r_title'] = clean_title(i['r_title'])
+    all_paper_reference = ieee_paper_reference + acm_paper_reference
+
+    # 把 reference 对应到可能的文章 id
+    def get_paper_id_by_reference_info(info):
+        """ 根据文章的 refenrence 信息查找文章 id
+        可以用于判断的包括： doi, title, ieee document number, citation
+        Returns:
+            paper id
+            如果没有则返回 []
+        """
+        result = []
+        if info.get('r_doi') != None:
+            result = my_select(connection_merge, 'select id from paper where `doi` = \'{}\''.format(info['r_doi']))
+            if len(result) != 0:
+                return result
+        if info.get('r_title') != None:
+            result = my_select(connection_merge, 'select id from paper where `title` = \'{}\''.format(info['r_title']))
+            if len(result) != 0:
+                return result
+        if info.get('r_document_id') != None:
+            # 强依赖于 ieee paper 的 id 生成规则。。。非常不好，（也许）以后再改
+            result = my_select(connection_merge, 'select id from paper where `id` = \'{}\''.format(hash_str('ieee' + info['r_document_id'])))
+            if len(result) != 0:
+                return result
+        return result
+    result_paper_reference = []
+    for i in all_paper_reference:
+        result = get_paper_id_by_reference_info(i)
+        if len(result) != 0:
+            result_paper_reference.append((i['pid'], result[0]['id']))
+    
+    my_insert_many(connection_merge, 'insert ignore into paper_reference(pid, rid) values(%s, %s)', result_paper_reference)
+
+
+    print('haha')
+merge_paper_reference(paper_mapping)
+
 print('haha')
+# %%
