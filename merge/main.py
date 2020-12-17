@@ -8,8 +8,9 @@ import sys
 from functools import cmp_to_key
 from utils import hash_str
 from utils import encode_id
+# from utils import solve_affiliation_name
 config = configparser.ConfigParser()
-config.read('/home/leo/Desktop/ASE/data-processing/merge/merge.ini')
+config.read('/home/leo/Desktop/ASE/data-processing/merge/merge2.ini')
 
 
 # Connect to database merge
