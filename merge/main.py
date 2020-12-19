@@ -10,7 +10,7 @@ from utils import hash_str
 from utils import encode_id
 # from utils import solve_affiliation_name
 config = configparser.ConfigParser()
-config.read('/home/leo/Desktop/ASE/data-processing/merge/merge2.ini')
+config.read('/home/leo/Desktop/ASE/data-processing/merge/merge.ini')
 
 
 # Connect to database merge
@@ -167,7 +167,11 @@ def merge_publication():
 def merge_publication_by_id(id1, id2):
     """
     将数据库中的两个 publication 合并， 如果其中有不存在的，则直接认为已经合并，修改 pubclaition 和 publication mapping. 将 id2 对应的合并入 id1
+    同时修改已经在 paper 中的这个 id2
+    1. 修改 publication 表（删除 id2）
+    2. 修改 publication_mapping 表，将对应 id2 的改对应 id1
     """
+    print('id1 = "{}", id2 = "{}"'.format(id1, id2))
     pubs = my_select(connection_merge, 'select * from publication where `id` = "{}" or `id` = "{}"'.format(id1, id2))
     if len(pubs) != 2:
         return
@@ -200,10 +204,16 @@ def merge_paper(publication_mapping):
             main_record['doi'] = new_record['doi']
         return main_record
 
-    def callback_paper_merge(paper1, paper2):
+    def callback_paper_merge(paper1, paper2, publication_equal):
         """ callback after merge the paper, merge the publication
+        TODO： 这里不考虑三个 publication 合并的可能
         """
-        merge_publication_by_id(paper1['publication_id'], paper2['publication_id'])
+        # merge_publication_by_id(paper1['publication_id'], paper2['publication_id'])
+        if paper1['publication_id'] < paper2['publication_id']:
+            publication_equal.add((paper1['publication_id'], paper2['publication_id']))
+        else:
+            publication_equal.add((paper2['publication_id'], paper1['publication_id']))
+
         # logging.debug('merge papers: "{}", "{}"'.format(paper1, paper2))
 
     def change_paper(paper, src, publication_mapping_dict):
@@ -224,8 +234,19 @@ def merge_paper(publication_mapping):
     publication_mapping_dict = {}
     for i in publication_mapping:
         publication_mapping_dict[(i[1], i[2])] = {'id_main': i[0], 'id': i[1], 'src': i[2], 'merged': i[3]}
-    change_merge_map(paper_ieee, papers, paper_mapping, change=lambda x, src='IEEE', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='IEEE', update=update_paper, equal_callback=callback_paper_merge)
-    change_merge_map(paper_acm, papers, paper_mapping, change=lambda x, src='ACM', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='ACM', update=update_paper,equal_callback=callback_paper_merge)
+    publication_equal = set()
+    change_merge_map(paper_ieee, papers, paper_mapping, change=lambda x, src='IEEE', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='IEEE', update=update_paper, equal_callback=lambda x, y, z = publication_equal: callback_paper_merge(x, y, z))
+    change_merge_map(paper_acm, papers, paper_mapping, change=lambda x, src='ACM', dic=publication_mapping_dict: change_paper(x, src, dic), is_equal=paper_is_equal, src='ACM', update=update_paper,equal_callback=lambda x, y, z = publication_equal: callback_paper_merge(x, y, z))
+
+    publication_equal_dict = {} # 被合并的 publication id -> 对应的 pid
+    for i in publication_equal:
+        merge_publication_by_id(i[0], i[1])
+        if i[1] not in publication_equal_dict:
+            publication_equal_dict[i[1]] = i[0]
+    for i in papers:
+        if i['publication_id'] in publication_equal_dict:
+            i['publication_id'] = publication_equal_dict[i['publication_id']]
+    
 
     papers = map(
         lambda x: (
