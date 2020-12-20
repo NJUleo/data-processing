@@ -42,12 +42,16 @@ class test_db(unittest.TestCase):
         pid_not_in_paper = self.__db.my_select('select count(*) from paper_researcher where pid not in (select id from paper)')
         self.assertEqual(pid_not_in_paper[0]['count(*)'], 0)
     
-    def researcher_affiliation(self):
+    def test_researcher_affiliation(self):
         rid_not_in_researcher = self.__db.my_select('select count(*) from researcher_affiliation where rid not in (select id from researcher)')
         self.assertEqual(rid_not_in_researcher[0]['count(*)'], 0)
 
         aid_not_in_affiliation = self.__db.my_select('select count(*) from researcher_affiliation where aid not in (select id from affiliation)')
         self.assertEqual(aid_not_in_affiliation[0]['count(*)'], 0)
+    
+    def test_paper(self):
+        pid_not_in_publication = self.__db.my_select('select count(*) from paper p where p.publication_id not in (select id from publication)')
+        self.assertEqual(pid_not_in_publication[0]['count(*)'], 0)
 
 
 
