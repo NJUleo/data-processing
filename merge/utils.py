@@ -38,7 +38,6 @@ def solve_affiliation_name(s):
             if i in strs[cur] or len(strs[cur]) > 25:
                 index = cur
     if index == -1:
-        print(s)
         return strs[0]
     res = strs[0]
     for i in range(0, index):
