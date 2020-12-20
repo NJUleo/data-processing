@@ -58,3 +58,17 @@ class db_helper():
             raise e
         finally:
             cursor.close()
+    
+    def my_delete_update(self, sql):
+        try:
+            cursor = self.__connection.cursor()
+            cursor.execute(sql)
+            self.__connection.commit()
+        except pymysql.err.IntegrityError as e:
+            logging.warning(e.args[1])
+        except Exception as e:
+            logging.warning('error in delete/update, sql: "{}"'.format(sql))
+            self.__connection.rollback()
+            raise e
+        finally:
+            cursor.close()
