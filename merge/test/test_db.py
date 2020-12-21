@@ -53,6 +53,11 @@ class test_db(unittest.TestCase):
         pid_not_in_publication = self.__db.my_select('select count(*) from paper p where p.publication_id not in (select id from publication)')
         self.assertEqual(pid_not_in_publication[0][self.__count_str], 0)
 
+    def test_researcher(self):
+        # 没有文章的作者
+        rid_not_in_paper_researcher = self.__db.my_select('select count(*) from researcher where id not in (select rid from paper_researcher);')
+        self.assertEqual(rid_not_in_paper_researcher[0][self.__count_str], 0)
+        
 
 
 if __name__ == '__main__':
