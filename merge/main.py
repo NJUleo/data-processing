@@ -252,8 +252,12 @@ def merge_paper(publication_mapping):
         if i[1] not in publication_equal_dict:
             publication_equal_dict[i[1]] = i[0]
     for i in papers:
-        if i['publication_id'] in publication_equal_dict:
-            i['publication_id'] = publication_equal_dict[i['publication_id']]
+        pub = i['publication_id']
+        while pub in publication_equal_dict:
+            if publication_equal_dict[pub] == pub:
+                break
+            pub = publication_equal_dict[pub]
+        i['publication_id'] = pub
     
 
     papers = map(
