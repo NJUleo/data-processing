@@ -7,7 +7,6 @@ import os
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.join(os.getcwd(), ".."))
 from merge.db_helper import db_helper
-from merge.utils import solve_affiliation_name
 from merge.utils import hash_str
 from merge.aff_id_to_name import get_aff_clean_name_by_id
 
