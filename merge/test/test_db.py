@@ -13,7 +13,7 @@ class test_db(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config = configparser.ConfigParser()
-        config.read('./merge/merge.ini')
+        config.read('./merge/tencent.ini')
         database_setting = config['merge Database']
         cls.__db = db_helper(database_setting)
 

@@ -11,7 +11,7 @@ from merge.utils import hash_str
 from merge.utils import get_clean_name_by_name
 # %%
 config = configparser.ConfigParser()
-config.read('/home/leo/Desktop/ASE/data-processing/merge/merge2.ini')
+config.read('/home/leo/Desktop/ASE/data-processing/merge/local.ini')
 db = db_helper(config['merge Database'])
 
 # %%
@@ -102,7 +102,69 @@ def change_affiliation(db: db_helper):
     print('haha')
 
 # %%
-change_affiliation(db)
+# change_affiliation(db)
+
 # %%
-# db.my_delete_update("update paper set `publication_id` = '303c6505b0003fbe411e1ba2a57a07e6' where `publication_id` = '4237b0ea88597836adfb9bfa7884279d';")
+def change_domain(db: db_helper):
+    domains = db.my_select('select * from domain')
+    paper_domains = db.my_select('select * from paper_domain')
+    result_domains = []
+    def get_domain_by_name(domains, name):
+        """
+        从 domains 中获取名字为 name 的domain。不存在则返回 None
+        """
+        for domain in domains:
+            if domain['name'] == name:
+                return domain
+        return None
+    def change_paper_domain_by_name(paper_domains, new_name, name):
+        new_id = hash_str(new_name)
+        old_id = hash_str(name)
+        for pd in paper_domains:
+            if pd['did'] == old_id:
+                pd['did'] = new_id
+    for domain in domains:
+        new_name = domain['name'].lower()
+        if new_name == domain['name']:
+            # 全部是小写，没有变化
+            result_domains.append(domain)
+        else:
+            # 含有大写，使用小写代替
+            # 判断是否有这个小写的 domain
+            main_domain = get_domain_by_name(domains, new_name) # 作为这个 domain 的主记录
+            if main_domain == None:
+                # 修改当前 domain 并插入
+                result_domains.append({
+                    'id': hash_str(new_name),
+                    'name': new_name,
+                    'url': None
+                })
+            else:
+                # 删掉当前 domain （result中不含它）
+                pass
+            # 修改关系表
+            change_paper_domain_by_name(paper_domains, new_name, domain['name'])
+    domain_tuple = list(map(
+        lambda x: (
+            x['id'],
+            x['name'],
+            x['url']
+        ),
+        result_domains
+    ))
+    paper_domain_tuple = list(map(
+        lambda x: (
+            x['pid'],
+            x['did']
+        ),
+        paper_domains
+    ))
+    db.my_delete_update('delete from domain')
+    db.my_delete_update('delete from paper_domain')
+    db.my_insert_many('insert ignore into domain(`id`, `name`, `url`) values(%s, %s, %s)', domain_tuple)
+    db.my_insert_many('insert ignore into paper_domain(`pid`, `did`) values(%s, %s)', paper_domain_tuple)
+    print('haha')
+
+# %%
+change_domain(db)
 # %%
